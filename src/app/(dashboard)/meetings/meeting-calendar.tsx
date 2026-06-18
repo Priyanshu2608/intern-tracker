@@ -103,10 +103,10 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
               <Calendar className="h-4.5 w-4.5" />
             </div>
             <div>
-              <CardTitle className="text-base font-bold text-[#0B1F3A]">
+              <CardTitle className="text-lg font-bold text-[#0B1F3A]">
                 {monthNames[month]} {year}
               </CardTitle>
-              <span className="text-[10px] text-slate-400 font-semibold">
+              <span className="text-xs text-slate-400 font-semibold">
                 {monthMeetingCount} meeting{monthMeetingCount !== 1 ? 's' : ''} this month
               </span>
             </div>
@@ -125,7 +125,7 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
               variant="ghost"
               size="sm"
               onClick={goToToday}
-              className="h-8 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-[#0B1F3A] hover:bg-slate-50 cursor-pointer"
+              className="h-8 px-3 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-[#0B1F3A] hover:bg-slate-50 cursor-pointer"
             >
               Today
             </Button>
@@ -147,7 +147,7 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
           {dayNames.map((day) => (
             <div
               key={day}
-              className="text-center text-[9px] font-extrabold uppercase tracking-widest text-slate-400 py-2"
+              className="text-center text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-400 py-2"
             >
               {day}
             </div>
@@ -162,9 +162,9 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
             return (
               <div
                 key={`prev-${i}`}
-                className="bg-white p-1.5 sm:p-2 min-h-[52px] sm:min-h-[62px] relative"
+                className="bg-white p-2 sm:p-2.5 min-h-[56px] sm:min-h-[68px] relative"
               >
-                <span className="text-[10px] font-semibold text-slate-300">{day}</span>
+                <span className="text-xs font-semibold text-slate-300">{day}</span>
               </div>
             )
           })}
@@ -184,7 +184,7 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
                 type="button"
                 onClick={() => setSelectedDate(dateKey === selectedDate ? null : dateKey)}
                 className={cn(
-                  'bg-white p-1.5 sm:p-2 min-h-[52px] sm:min-h-[62px] relative text-left transition-all focus:outline-none group',
+                  'bg-white p-2 sm:p-2.5 min-h-[56px] sm:min-h-[68px] relative text-left transition-all focus:outline-none group',
                   isSelected && 'bg-[#0B1F3A]/[0.03] ring-1 ring-inset ring-[#C9952A]/30',
                   hasMeetings && !isSelected && 'hover:bg-slate-50/80',
                   !hasMeetings && 'hover:bg-slate-50/40',
@@ -193,7 +193,7 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
               >
                 <span
                   className={cn(
-                    'text-[10px] sm:text-[11px] font-bold inline-flex items-center justify-center h-5 w-5 rounded-full transition-colors',
+                    'text-xs sm:text-sm font-bold inline-flex items-center justify-center h-6 w-6 rounded-full transition-colors',
                     isToday && 'bg-[#0B1F3A] text-white',
                     isSelected && !isToday && 'bg-[#C9952A]/15 text-[#C9952A]',
                     !isToday && !isSelected && 'text-slate-600 group-hover:text-[#0B1F3A]'
@@ -204,12 +204,12 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
 
                 {/* Meeting Dots */}
                 {hasMeetings && (
-                  <div className="mt-0.5 flex flex-wrap gap-0.5">
+                  <div className="mt-1 flex flex-wrap gap-0.5">
                     {dayMeetings.slice(0, 3).map((m, idx) => (
                       <div
                         key={m.id}
                         className={cn(
-                          'h-1.5 rounded-full transition-all',
+                          'h-2 rounded-full transition-all',
                           idx === 0 && 'bg-[#C9952A] w-full max-w-[28px]',
                           idx === 1 && 'bg-[#0B1F3A]/40 w-full max-w-[20px]',
                           idx === 2 && 'bg-emerald-400 w-full max-w-[14px]'
@@ -218,7 +218,7 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
                       />
                     ))}
                     {dayMeetings.length > 3 && (
-                      <span className="text-[8px] font-bold text-slate-400 leading-none mt-0.5">
+                      <span className="text-[9px] font-bold text-slate-400 leading-none mt-0.5">
                         +{dayMeetings.length - 3}
                       </span>
                     )}
@@ -232,9 +232,9 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
           {Array.from({ length: postfillDays }).map((_, i) => (
             <div
               key={`next-${i}`}
-              className="bg-white p-1.5 sm:p-2 min-h-[52px] sm:min-h-[62px] relative"
+              className="bg-white p-2 sm:p-2.5 min-h-[56px] sm:min-h-[68px] relative"
             >
-              <span className="text-[10px] font-semibold text-slate-300">{i + 1}</span>
+              <span className="text-xs font-semibold text-slate-300">{i + 1}</span>
             </div>
           ))}
         </div>
@@ -243,14 +243,14 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
         {selectedDate && (
           <div className="mt-4 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
                 {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', {
                   weekday: 'long',
                   month: 'long',
                   day: 'numeric',
                 })}
               </span>
-              <Badge variant="secondary" className="text-[9px] font-bold bg-slate-100 text-slate-500 px-2 py-0">
+              <Badge variant="secondary" className="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5">
                 {selectedMeetings.length} event{selectedMeetings.length !== 1 ? 's' : ''}
               </Badge>
             </div>
@@ -275,26 +275,26 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
                       )}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-bold text-xs text-[#0B1F3A] truncate group-hover/card:text-[#C9952A] transition-colors">
+                      <div className="flex-1 min-w-0">
+                          <h5 className="font-bold text-sm text-[#0B1F3A] truncate group-hover/card:text-[#C9952A] transition-colors">
                             {meeting.title}
                           </h5>
                           <div className="flex items-center gap-3 mt-1.5">
-                            <span className="text-[10px] text-slate-500 font-semibold flex items-center gap-1">
-                              <Clock className="h-3 w-3 text-slate-400" />
+                            <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
+                              <Clock className="h-3.5 w-3.5 text-slate-400" />
                               {start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                               {' – '}
                               {end.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
-                              <Users className="h-3 w-3" />
+                            <span className="text-xs text-slate-400 font-semibold flex items-center gap-1">
+                              <Users className="h-3.5 w-3.5" />
                               {meeting.teams ? meeting.teams.name : 'All-Hands'}
                             </span>
                           </div>
                         </div>
                         <Badge
                           className={cn(
-                            'text-[8px] font-bold uppercase tracking-wider px-1.5 py-0 shrink-0',
+                            'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 shrink-0',
                             isPast
                               ? 'bg-slate-100 text-slate-500 border-none'
                               : 'bg-amber-50 text-amber-700 border border-amber-100'
@@ -308,7 +308,7 @@ export function MeetingCalendar({ meetings, onSelectMeeting }: MeetingCalendarPr
                 })}
               </div>
             ) : (
-              <div className="text-center py-6 text-xs text-slate-400 font-medium select-none">
+              <div className="text-center py-6 text-sm text-slate-400 font-medium select-none">
                 No meetings on this date
               </div>
             )}

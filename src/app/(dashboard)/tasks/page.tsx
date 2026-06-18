@@ -88,9 +88,13 @@ export default async function TasksPage() {
     <div className="space-y-6 flex flex-col h-[calc(100vh-8rem)]">
       <div className="flex items-center justify-between shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-[#0B1F3A]">Task Board</h1>
+          <h1 className="text-2xl font-bold text-[#0B1F3A]">
+            {isAdmin ? 'Task Board — All Squads' : 'Task Board'}
+          </h1>
           <p className="text-slate-500 text-sm mt-0.5">
-            Manage squad workloads, transition status via drag-and-drop, and monitor modification history.
+            {isAdmin
+              ? 'Overview of all squad workloads and task progress across teams.'
+              : 'Manage squad workloads, transition status via drag-and-drop, and monitor modification history.'}
           </p>
         </div>
       </div>

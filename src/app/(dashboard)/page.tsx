@@ -126,7 +126,7 @@ export default async function DashboardPage() {
           <p className="text-slate-500 text-sm mt-1">
             {isIntern && "Here's a breakdown of your current tasks and team status."}
             {isLead && `Managing ${profile.teams?.name || 'your team'} and squad activities.`}
-            {isAdmin && 'System Administration and full overview portal.'}
+            {isAdmin && 'Manager overview — monitoring updates from interns and squad leaders.'}
           </p>
         </div>
 
@@ -238,10 +238,10 @@ export default async function DashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-4">
             <div>
               <CardTitle className="text-base font-bold text-[#0B1F3A]">
-                My Open Tasks
+                {isAdmin ? 'All Open Tasks' : 'My Open Tasks'}
               </CardTitle>
               <CardDescription className="text-xs text-slate-400">
-                Tasks currently assigned to you or your team
+                {isAdmin ? 'Tasks across all squads and teams' : 'Tasks currently assigned to you or your team'}
               </CardDescription>
             </div>
             <Link href="/tasks">

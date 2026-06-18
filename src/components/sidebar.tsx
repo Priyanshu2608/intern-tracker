@@ -132,7 +132,7 @@ export function Sidebar({ user, className }: SidebarProps) {
                 user.role === 'lead' && "bg-amber-500/20 text-amber-300",
                 user.role === 'intern' && "bg-green-500/20 text-green-300"
               )}>
-                {user.role}
+                {user.role === 'admin' ? 'manager' : user.role}
               </span>
               {user.team_name && (
                 <span className="text-[10px] text-slate-400 font-medium truncate max-w-[80px]">

@@ -68,7 +68,7 @@ export function Topbar({ user }: TopbarProps) {
         </h2>
         <div className="hidden sm:flex items-center gap-1 text-[10px] md:text-xs text-slate-400 font-medium bg-slate-50 px-2 py-1 rounded border border-slate-100 shrink-0">
           <Shield className="h-3.5 w-3.5 text-[#C9952A]" />
-          <span className="capitalize">{user.role} Portal</span>
+          <span className="capitalize">{user.role === 'admin' ? 'Manager' : user.role} Portal</span>
         </div>
       </div>
 
