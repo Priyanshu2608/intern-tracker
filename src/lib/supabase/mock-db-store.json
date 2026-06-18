@@ -112,11 +112,11 @@
       "priority": "high",
       "status": "in_progress",
       "due_date": "2026-06-25",
-      "assignee_id": "77777777-7777-7777-7777-777777777777",
+      "assignee_id": "66666666-6666-6666-6666-666666666666",
       "team_id": "11111111-1111-1111-1111-111111111111",
       "created_by": "88888888-8888-8888-8888-888888888888",
       "created_at": "2026-06-18T19:46:03.503Z",
-      "updated_at": "2026-06-18T19:46:03.503Z"
+      "updated_at": "2026-06-18T22:06:47.893Z"
     },
     {
       "id": "44444444-4444-4444-4444-444444444444",
@@ -124,13 +124,13 @@
       "description": "Address comments from senior developer on git PR.",
       "acceptance_criteria": "All comments resolved and PR approved.",
       "priority": "medium",
-      "status": "in_progress",
+      "status": "todo",
       "due_date": "2026-06-28",
       "assignee_id": "77777777-7777-7777-7777-777777777777",
       "team_id": "11111111-1111-1111-1111-111111111111",
       "created_by": "88888888-8888-8888-8888-888888888888",
       "created_at": "2026-06-18T19:46:03.503Z",
-      "updated_at": "2026-06-18T19:46:23.812Z"
+      "updated_at": "2026-06-18T22:07:24.634Z"
     },
     {
       "id": "33333333-4444-4444-4444-444444444444",
@@ -178,6 +178,28 @@
       "from_value": "todo",
       "to_value": "in_progress",
       "comment": "Moved task from \"To Do\" to \"In Progress\""
+    },
+    {
+      "id": "2b49a7b6-fff8-4de4-b4b5-753a1bfd8264",
+      "created_at": "2026-06-18T22:06:47.895Z",
+      "updated_at": "2026-06-18T22:06:47.895Z",
+      "task_id": "55555555-5555-5555-5555-555555555555",
+      "changed_by": "99999999-9999-9999-9999-999999999999",
+      "change_type": "edit",
+      "from_value": "in_progress",
+      "to_value": "in_progress",
+      "comment": "Updated details: reassigned task"
+    },
+    {
+      "id": "33f70144-fc33-4bc7-84ab-af9691da8ff5",
+      "created_at": "2026-06-18T22:07:24.635Z",
+      "updated_at": "2026-06-18T22:07:24.635Z",
+      "task_id": "44444444-4444-4444-4444-444444444444",
+      "changed_by": "99999999-9999-9999-9999-999999999999",
+      "change_type": "status_change",
+      "from_value": "in_progress",
+      "to_value": "todo",
+      "comment": "Moved task from \"In Progress\" to \"To Do\""
     }
   ],
   "standups": [

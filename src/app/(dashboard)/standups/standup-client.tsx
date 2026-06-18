@@ -247,7 +247,13 @@ export function StandupClient({
           {currentUser.role === 'admin' && (
             <Select value={selectedTeamFilter} onValueChange={(val) => setSelectedTeamFilter(val || 'all')}>
               <SelectTrigger className="w-full sm:w-48 h-9 border-slate-200 text-xs">
-                <SelectValue placeholder="Filter by Squad" />
+                <SelectValue placeholder="Filter by Squad">
+                  {(value) => {
+                    if (value === 'all') return "All Squads"
+                    const team = uniqueTeams.find(([id]) => id === value)
+                    return team && team[1] ? team[1].name : "Filter by Squad"
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Squads</SelectItem>

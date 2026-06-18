@@ -58,7 +58,7 @@ export default async function StandupsPage() {
   }
 
   // Find if current user submitted today's standup
-  const mySubmission = todayStandups?.find((s) => s.user_id === user.id) || null
+  const mySubmission = todayStandups?.find((s: any) => s.user_id === user.id) || null
 
   return (
     <div className="space-y-6">

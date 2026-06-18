@@ -538,7 +538,13 @@ export function MeetingsClient({
               <Label htmlFor="teamId" className="text-xs font-bold text-slate-600">Scope</Label>
               <Select name="teamId" defaultValue="">
                 <SelectTrigger className="h-10 border-slate-200">
-                  <SelectValue placeholder="All-Hands (Company-Wide)" />
+                  <SelectValue placeholder="All-Hands (Company-Wide)">
+                    {(value) => {
+                      if (!value) return "All-Hands (Company-Wide)"
+                      const selectedTeam = teams.find((t) => t.id === value)
+                      return selectedTeam ? selectedTeam.name : "All-Hands (Company-Wide)"
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">All-Hands (Company-Wide)</SelectItem>

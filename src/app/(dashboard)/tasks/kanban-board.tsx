@@ -475,7 +475,12 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
 
           <Select value={filterPriority} onValueChange={(val) => setFilterPriority(val || 'all')}>
             <SelectTrigger className="w-full sm:w-36 h-10 border-slate-200">
-              <SelectValue placeholder="Priority" />
+              <SelectValue placeholder="Priority">
+                {(value) => {
+                  if (value === 'all') return "All Priorities"
+                  return value ? value.charAt(0).toUpperCase() + value.slice(1) : "Priority"
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Priorities</SelectItem>
@@ -647,7 +652,9 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                 <Label htmlFor="priority" className="text-sm font-bold text-slate-600">Priority</Label>
                 <Select name="priority" defaultValue="medium">
                   <SelectTrigger className="w-full min-w-0 h-11 border-slate-200 text-sm">
-                    <SelectValue placeholder="Select" />
+                    <SelectValue placeholder="Select">
+                      {(value) => value ? value.charAt(0).toUpperCase() + value.slice(1) : "Select"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="low">Low</SelectItem>
@@ -766,7 +773,18 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                       <Label htmlFor="edit-status" className="text-xs font-bold text-slate-600">Status</Label>
                       <Select name="status" defaultValue={selectedTask.status}>
                         <SelectTrigger className="h-10 border-slate-200">
-                          <SelectValue placeholder="Select" />
+                          <SelectValue placeholder="Select">
+                            {(value) => {
+                              const labels: Record<string, string> = {
+                                todo: 'To Do',
+                                in_progress: 'In Progress',
+                                review: 'Review',
+                                done: 'Done',
+                                blocked: 'Blocked',
+                              }
+                              return labels[value] || 'Select'
+                            }}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="todo">To Do</SelectItem>
@@ -782,7 +800,9 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                       <Label htmlFor="edit-priority" className="text-xs font-bold text-slate-600">Priority</Label>
                       <Select name="priority" defaultValue={selectedTask.priority}>
                         <SelectTrigger className="h-10 border-slate-200">
-                          <SelectValue placeholder="Select" />
+                          <SelectValue placeholder="Select">
+                            {(value) => value ? value.charAt(0).toUpperCase() + value.slice(1) : "Select"}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="low">Low</SelectItem>
@@ -877,7 +897,18 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                       onValueChange={(val: any) => handleStatusChange(selectedTask.id, val, selectedTask.status)}
                     >
                       <SelectTrigger className="h-10 border-slate-200">
-                        <SelectValue placeholder="Status" />
+                        <SelectValue placeholder="Status">
+                          {(value) => {
+                            const labels: Record<string, string> = {
+                              todo: 'To Do',
+                              in_progress: 'In Progress',
+                              review: 'Review',
+                              done: 'Done',
+                              blocked: 'Blocked',
+                            }
+                            return labels[value] || 'Status'
+                          }}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="todo">To Do</SelectItem>

@@ -128,8 +128,8 @@ class ServerQueryBuilder {
   update(data: any) {
     const self = this
     return {
-      eq: (col: string, val: any) => {
-        return new Promise((resolve) => {
+      eq: (col: string, val: any): Promise<{ data: any; error: any }> => {
+        return new Promise<{ data: any; error: any }>((resolve) => {
           try {
             const db = getDb()
             const tableData = db[self.tableName as keyof typeof db] as any[]
@@ -153,9 +153,9 @@ class ServerQueryBuilder {
     }
   }
 
-  upsert(data: any, options?: any) {
+  upsert(data: any, options?: any): Promise<{ data: any; error: any }> {
     const self = this
-    return new Promise((resolve) => {
+    return new Promise<{ data: any; error: any }>((resolve) => {
       try {
         const db = getDb()
         const tableData = db[self.tableName as keyof typeof db] as any[]
@@ -194,8 +194,8 @@ class ServerQueryBuilder {
   delete() {
     const self = this
     return {
-      eq: (col: string, val: any) => {
-        return new Promise((resolve) => {
+      eq: (col: string, val: any): Promise<{ data: any; error: any }> => {
+        return new Promise<{ data: any; error: any }>((resolve) => {
           try {
             const db = getDb()
             const tableData = db[self.tableName as keyof typeof db] as any[]

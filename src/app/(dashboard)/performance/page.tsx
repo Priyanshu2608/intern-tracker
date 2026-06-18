@@ -111,7 +111,7 @@ export default async function PerformancePage() {
     }
   }) || []
   
-  const interns = profiles.filter((p) => p.role === 'intern')
+  const interns = profiles.filter((p: any) => p.role === 'intern')
 
   // 4. Fetch all tasks (scoped to team or all)
   let tasksQuery = supabase
@@ -149,7 +149,7 @@ export default async function PerformancePage() {
   }) || []
 
   // 7. Calculate stats per intern
-  const internMetrics = interns.map((intern) => {
+  const internMetrics = interns.map((intern: any) => {
     const internTasks = tasksList.filter((t: any) => t.assignee_id === intern.id)
     const completedTasksCount = internTasks.filter((t: any) => t.status === 'done').length
     
@@ -274,7 +274,7 @@ export default async function PerformancePage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-xs">
-                      {internMetrics.map(({ profile: intern, totalTasks, completedTasks, onTimeRate, standupCount, standupStreak }) => (
+                      {internMetrics.map(({ profile: intern, totalTasks, completedTasks, onTimeRate, standupCount, standupStreak }: any) => (
                         <tr key={intern.id} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-4 px-6 flex items-center gap-3">
                             <div className="h-8 w-8 rounded-full bg-[#0B1F3A]/5 border border-[#0B1F3A]/10 flex items-center justify-center font-bold text-xs text-[#0B1F3A] uppercase shrink-0">
@@ -332,7 +332,7 @@ export default async function PerformancePage() {
 
                 {/* Mobile View Card List */}
                 <div className="block md:hidden divide-y divide-slate-100 select-none">
-                  {internMetrics.map(({ profile: intern, totalTasks, completedTasks, onTimeRate, standupCount, standupStreak }) => (
+                  {internMetrics.map(({ profile: intern, totalTasks, completedTasks, onTimeRate, standupCount, standupStreak }: any) => (
                     <div key={intern.id} className="p-4 flex flex-col gap-3 hover:bg-slate-50/50 transition-colors">
                       {/* Profile row */}
                       <div className="flex items-center gap-3">

@@ -205,7 +205,12 @@ export function PeopleDirectory({ initialProfiles, teams, isAdmin }: PeopleDirec
 
             <Select value={selectedRole} onValueChange={(val) => setSelectedRole(val || 'all')}>
               <SelectTrigger className="w-full sm:w-40 h-10 border-slate-200">
-                <SelectValue placeholder="Role" />
+                <SelectValue placeholder="Role">
+                  {(value) => {
+                    if (value === 'all') return "All Roles"
+                    return value ? value.charAt(0).toUpperCase() + value.slice(1) : "Role"
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
@@ -218,7 +223,14 @@ export function PeopleDirectory({ initialProfiles, teams, isAdmin }: PeopleDirec
             {isAdmin && (
               <Select value={selectedTeam} onValueChange={(val) => setSelectedTeam(val || 'all')}>
                 <SelectTrigger className="w-full sm:w-44 h-10 border-slate-200">
-                  <SelectValue placeholder="Squad / Team" />
+                  <SelectValue placeholder="Squad / Team">
+                    {(value) => {
+                      if (value === 'all') return "All Teams"
+                      if (value === 'none') return "No Team Assigned"
+                      const selectedTeamObj = teams.find((t) => t.id === value)
+                      return selectedTeamObj ? selectedTeamObj.name : "Squad / Team"
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Teams</SelectItem>
@@ -565,7 +577,9 @@ export function PeopleDirectory({ initialProfiles, teams, isAdmin }: PeopleDirec
                 <Label htmlFor="role" className="text-xs font-bold text-slate-600">Role</Label>
                 <Select name="role" defaultValue="intern">
                   <SelectTrigger className="h-10 border-slate-200">
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue placeholder="Select role">
+                      {(value) => value ? value.charAt(0).toUpperCase() + value.slice(1) : "Select role"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="intern">Intern</SelectItem>
@@ -579,7 +593,13 @@ export function PeopleDirectory({ initialProfiles, teams, isAdmin }: PeopleDirec
                 <Label htmlFor="teamId" className="text-xs font-bold text-slate-600">Squad</Label>
                 <Select name="teamId" defaultValue="">
                   <SelectTrigger className="h-10 border-slate-200">
-                    <SelectValue placeholder="Unassigned" />
+                    <SelectValue placeholder="Unassigned">
+                      {(value) => {
+                        if (!value) return "Unassigned"
+                        const selectedTeamObj = teams.find((t) => t.id === value)
+                        return selectedTeamObj ? selectedTeamObj.name : "Unassigned"
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Unassigned</SelectItem>
@@ -636,7 +656,9 @@ export function PeopleDirectory({ initialProfiles, teams, isAdmin }: PeopleDirec
                   <Label htmlFor="edit-role" className="text-xs font-bold text-slate-600">Role</Label>
                   <Select name="role" defaultValue={selectedUser.role}>
                     <SelectTrigger className="h-10 border-slate-200">
-                      <SelectValue placeholder="Select role" />
+                      <SelectValue placeholder="Select role">
+                        {(value) => value ? value.charAt(0).toUpperCase() + value.slice(1) : "Select role"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="intern">Intern</SelectItem>
@@ -650,7 +672,13 @@ export function PeopleDirectory({ initialProfiles, teams, isAdmin }: PeopleDirec
                   <Label htmlFor="edit-teamId" className="text-xs font-bold text-slate-600">Squad</Label>
                   <Select name="teamId" defaultValue={selectedUser.team_id || ""}>
                     <SelectTrigger className="h-10 border-slate-200">
-                      <SelectValue placeholder="Unassigned" />
+                      <SelectValue placeholder="Unassigned">
+                        {(value) => {
+                          if (!value) return "Unassigned"
+                          const selectedTeamObj = teams.find((t) => t.id === value)
+                          return selectedTeamObj ? selectedTeamObj.name : "Unassigned"
+                        }}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">Unassigned</SelectItem>
