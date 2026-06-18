@@ -124,6 +124,9 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
   const [filterAssignee, setFilterAssignee] = useState<string>('all')
   const [filterTeam, setFilterTeam] = useState<string>('all')
 
+  // Kanban active tab on mobile
+  const [activeTab, setActiveTab] = useState<'todo' | 'in_progress' | 'review' | 'done' | 'blocked'>('todo')
+
   // Modals & Drawers state
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
@@ -288,6 +291,136 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
 
   const isManager = currentUser.role === 'admin' || currentUser.role === 'lead'
 
+  const renderColumn = (
+    column: typeof columns[number],
+    colTasks: Task[],
+    isMobile = false
+  ) => {
+    return (
+      <div
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => handleDrop(e, column.id)}
+        className={cn(
+          "bg-slate-50/50 border border-slate-200/80 rounded-xl p-3 flex flex-col h-full",
+          isMobile ? "w-full" : "flex-1 min-w-[200px]"
+        )}
+      >
+        {/* Column Title Header - hidden on mobile since we already have tabs */}
+        {!isMobile && (
+          <div className="flex items-center justify-between mb-3 px-1.5 select-none shrink-0">
+            <div className="flex items-center gap-2">
+              <span className={cn(
+                "h-2 w-2 rounded-full",
+                column.id === 'todo' && "bg-slate-400",
+                column.id === 'in_progress' && "bg-amber-500",
+                column.id === 'review' && "bg-blue-500",
+                column.id === 'done' && "bg-green-500",
+                column.id === 'blocked' && "bg-red-500"
+              )} />
+              <span className="font-bold text-sm text-[#0B1F3A]">{column.title}</span>
+            </div>
+            <Badge variant="secondary" className="bg-slate-200/50 text-slate-600 font-bold px-2 py-0.5 text-[10px]">
+              {colTasks.length}
+            </Badge>
+          </div>
+        )}
+
+        {/* Column Cards List */}
+        <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
+          {colTasks.length > 0 ? (
+            colTasks.map((task) => {
+              const isOverdue =
+                task.due_date &&
+                task.status !== 'done' &&
+                new Date(task.due_date + 'T23:59:59') < new Date()
+
+              return (
+                <div
+                  key={task.id}
+                  draggable={!isMobile}
+                  onDragStart={(e) => handleDragStart(e, task)}
+                  onClick={() => handleCardClick(task)}
+                  className={cn(
+                    "bg-white p-3.5 rounded-lg border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all active:cursor-grabbing group relative select-none cursor-pointer",
+                    !isMobile && "cursor-grab",
+                    task.status === 'blocked' && "border-l-4 border-l-red-500",
+                    task.status === 'in_progress' && "border-l-4 border-l-amber-500",
+                    task.status === 'done' && "border-l-4 border-l-green-500"
+                  )}
+                >
+                  <h4 className="font-bold text-xs sm:text-sm text-[#0B1F3A] leading-snug group-hover:text-[#C9952A] transition-colors line-clamp-2 pr-1 mb-2">
+                    {task.title}
+                  </h4>
+
+                  <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-100">
+                    {/* Priority */}
+                    <Badge
+                      className={cn(
+                        "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0",
+                        task.priority === 'urgent' && "bg-red-100 text-red-800 border-none",
+                        task.priority === 'high' && "bg-amber-100 text-amber-800 border-none",
+                        task.priority === 'medium' && "bg-blue-100 text-blue-800 border-none",
+                        task.priority === 'low' && "bg-slate-100 text-slate-800 border-none"
+                      )}
+                    >
+                      {task.priority}
+                    </Badge>
+
+                    {/* Info */}
+                    <div className="flex items-center gap-2">
+                      {task.due_date && (
+                        <div
+                          className={cn(
+                            "flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded",
+                            isOverdue
+                              ? "bg-red-50 text-red-600"
+                              : "text-slate-400 bg-slate-50"
+                          )}
+                          title={isOverdue ? 'Overdue!' : 'Due date'}
+                        >
+                          <Clock className="h-3 w-3" />
+                          <span>
+                            {new Date(task.due_date).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Assignee */}
+                      {task.assignee ? (
+                        <div
+                          className="h-6 w-6 rounded-full bg-[#0B1F3A]/10 border border-[#0B1F3A]/20 flex items-center justify-center font-bold text-[9px] text-[#0B1F3A] uppercase shrink-0"
+                          title={task.assignee.name}
+                        >
+                          {task.assignee.name.substring(0, 2)}
+                        </div>
+                      ) : (
+                        <div
+                          className="h-6 w-6 rounded-full border border-dashed border-slate-300 flex items-center justify-center font-medium text-[9px] text-slate-400 shrink-0"
+                          title="Unassigned"
+                        >
+                          <User className="h-3 w-3" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          ) : (
+            <div className="h-28 border border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-center p-4">
+              <span className="text-xs text-slate-400 font-medium select-none">
+                No tasks in this column
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col flex-1 min-h-0 space-y-4">
       {/* 1. Filter Panel */}
@@ -358,131 +491,65 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
         )}
       </div>
 
-      {/* 2. Kanban Columns Scroll Area */}
+      {/* 2. Mobile Column Selector */}
+      <div className="md:hidden flex gap-2 overflow-x-auto pb-2.5 -mx-4 px-4 scrollbar-none select-none shrink-0">
+        {columns.map((column) => {
+          const isActive = activeTab === column.id
+          const colTasks = filteredTasks.filter((t) => t.status === column.id)
+          return (
+            <button
+              key={column.id}
+              type="button"
+              onClick={() => setActiveTab(column.id)}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border shrink-0 flex items-center gap-1.5 cursor-pointer shadow-sm",
+                isActive
+                  ? "bg-[#0B1F3A] text-white border-[#0B1F3A]"
+                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+              )}
+            >
+              <span className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                column.id === 'todo' && "bg-slate-400",
+                column.id === 'in_progress' && "bg-amber-500",
+                column.id === 'review' && "bg-blue-500",
+                column.id === 'done' && "bg-green-500",
+                column.id === 'blocked' && "bg-red-500"
+              )} />
+              {column.title}
+              <span className={cn(
+                "px-1.5 py-0.2 rounded-full text-[9px] font-extrabold",
+                isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+              )}>
+                {colTasks.length}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* 3. Kanban Columns Area */}
       <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4">
-        <div className="flex gap-4 h-full min-w-[1000px]">
+        {/* Desktop Layout: Show all columns side-by-side */}
+        <div className="hidden md:flex gap-4 h-full min-w-[1000px]">
           {columns.map((column) => {
             const colTasks = filteredTasks.filter((t) => t.status === column.id)
-
-            return (
-              <div
-                key={column.id}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => handleDrop(e, column.id)}
-                className="flex-1 min-w-[200px] bg-slate-50/50 border border-slate-200/80 rounded-xl p-3 flex flex-col h-full"
-              >
-                {/* Column Title Header */}
-                <div className="flex items-center justify-between mb-3 px-1.5 select-none shrink-0">
-                  <div className="flex items-center gap-2">
-                    <span className={cn(
-                      "h-2 w-2 rounded-full",
-                      column.id === 'todo' && "bg-slate-400",
-                      column.id === 'in_progress' && "bg-amber-500",
-                      column.id === 'review' && "bg-blue-500",
-                      column.id === 'done' && "bg-green-500",
-                      column.id === 'blocked' && "bg-red-500"
-                    )} />
-                    <span className="font-bold text-sm text-[#0B1F3A]">{column.title}</span>
-                  </div>
-                  <Badge variant="secondary" className="bg-slate-200/50 text-slate-600 font-bold px-2 py-0.5 text-[10px]">
-                    {colTasks.length}
-                  </Badge>
-                </div>
-
-                {/* Column Cards List */}
-                <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
-                  {colTasks.length > 0 ? (
-                    colTasks.map((task) => {
-                      const isOverdue =
-                        task.due_date &&
-                        task.status !== 'done' &&
-                        new Date(task.due_date + 'T23:59:59') < new Date()
-
-                      return (
-                        <div
-                          key={task.id}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, task)}
-                          onClick={() => handleCardClick(task)}
-                          className={cn(
-                            "bg-white p-3 rounded-lg border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-grab active:cursor-grabbing group relative select-none",
-                            task.status === 'blocked' && "border-l-4 border-l-red-500",
-                            task.status === 'in_progress' && "border-l-4 border-l-amber-500",
-                            task.status === 'done' && "border-l-4 border-l-green-500"
-                          )}
-                        >
-                          <h4 className="font-bold text-xs text-[#0B1F3A] leading-snug group-hover:text-[#C9952A] transition-colors line-clamp-2 pr-1 mb-2">
-                            {task.title}
-                          </h4>
-
-                          <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-100">
-                            {/* Priority */}
-                            <Badge
-                              className={cn(
-                                "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0",
-                                task.priority === 'urgent' && "bg-red-100 text-red-800 border-none",
-                                task.priority === 'high' && "bg-amber-100 text-amber-800 border-none",
-                                task.priority === 'medium' && "bg-blue-100 text-blue-800 border-none",
-                                task.priority === 'low' && "bg-slate-100 text-slate-800 border-none"
-                              )}
-                            >
-                              {task.priority}
-                            </Badge>
-
-                            {/* Info */}
-                            <div className="flex items-center gap-2">
-                              {task.due_date && (
-                                <div
-                                  className={cn(
-                                    "flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded",
-                                    isOverdue
-                                      ? "bg-red-50 text-red-600"
-                                      : "text-slate-400 bg-slate-50"
-                                  )}
-                                  title={isOverdue ? 'Overdue!' : 'Due date'}
-                                >
-                                  <Clock className="h-3 w-3" />
-                                  <span>
-                                    {new Date(task.due_date).toLocaleDateString('en-US', {
-                                      month: 'short',
-                                      day: 'numeric',
-                                    })}
-                                  </span>
-                                </div>
-                              )}
-
-                              {/* Assignee */}
-                              {task.assignee ? (
-                                <div
-                                  className="h-6 w-6 rounded-full bg-[#0B1F3A]/10 border border-[#0B1F3A]/20 flex items-center justify-center font-bold text-[9px] text-[#0B1F3A] uppercase shrink-0"
-                                  title={task.assignee.name}
-                                >
-                                  {task.assignee.name.substring(0, 2)}
-                                </div>
-                              ) : (
-                                <div
-                                  className="h-6 w-6 rounded-full border border-dashed border-slate-300 flex items-center justify-center font-medium text-[9px] text-slate-400 shrink-0"
-                                  title="Unassigned"
-                                >
-                                  <User className="h-3 w-3" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })
-                  ) : (
-                    <div className="h-28 border border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-center p-4">
-                      <span className="text-[10px] text-slate-400 font-medium select-none">
-                        Drop tasks here
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )
+            return renderColumn(column, colTasks)
           })}
+        </div>
+
+        {/* Mobile Layout: Show only selected column */}
+        <div className="flex md:hidden h-full w-full">
+          {columns
+            .filter((c) => c.id === activeTab)
+            .map((column) => {
+              const colTasks = filteredTasks.filter((t) => t.status === column.id)
+              return (
+                <div key={column.id} className="w-full h-full">
+                  {renderColumn(column, colTasks, true)}
+                </div>
+              )
+            })}
         </div>
       </div>
 

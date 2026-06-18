@@ -221,8 +221,11 @@ export function MeetingsClient({
 
       {/* 3. Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left Column: Meetings list (Takes 2 cols) */}
-        <div className="lg:col-span-2 space-y-3">
+        {/* Left Column: Meetings list (Takes 2 cols) - hidden on mobile when a meeting is selected */}
+        <div className={cn(
+          "lg:col-span-2 space-y-3",
+          selectedMeeting ? "hidden lg:block" : "block"
+        )}>
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block select-none">
             Timeline
           </span>
@@ -306,8 +309,11 @@ export function MeetingsClient({
           )}
         </div>
 
-        {/* Right Column: Attendance detail (Takes 3 cols) */}
-        <div className="lg:col-span-3 space-y-3">
+        {/* Right Column: Attendance detail (Takes 3 cols) - hidden on mobile when no meeting is selected */}
+        <div className={cn(
+          "lg:col-span-3 space-y-3",
+          selectedMeeting ? "block" : "hidden lg:block"
+        )}>
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block select-none">
             Attendance Log
           </span>
@@ -315,6 +321,16 @@ export function MeetingsClient({
           {selectedMeeting ? (
             <Card className="border-slate-200/80 shadow-md bg-white">
               <CardHeader className="border-b border-slate-100 pb-4">
+                {/* Mobile Back Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedMeeting(null)}
+                  className="lg:hidden -ml-2 mb-2 h-8 text-xs text-slate-500 hover:text-[#0B1F3A] hover:bg-slate-55 flex items-center gap-1 cursor-pointer w-fit"
+                >
+                  ← Back to Meetings
+                </Button>
+
                 <CardTitle className="text-base font-bold text-[#0B1F3A]">
                   {selectedMeeting.title}
                 </CardTitle>
@@ -372,13 +388,15 @@ export function MeetingsClient({
                               disabled={isPendingAttendance}
                               onClick={() => handleMarkAttendance(member.id, 'present')}
                               className={cn(
-                                "h-8 px-2 text-[10px] font-bold uppercase rounded cursor-pointer",
+                                "h-8 px-2 sm:px-2.5 text-[10px] font-bold uppercase rounded cursor-pointer flex items-center justify-center gap-1 min-w-[32px]",
                                 status === 'present'
                                   ? "bg-green-100 text-green-800 hover:bg-green-150"
                                   : "text-slate-400 hover:bg-slate-50"
                               )}
+                              title="Present"
                             >
-                              Present
+                              <span className="hidden sm:inline">Present</span>
+                              <UserCheck className="h-4 w-4 sm:hidden" />
                             </Button>
                             <Button
                               size="sm"
@@ -386,13 +404,15 @@ export function MeetingsClient({
                               disabled={isPendingAttendance}
                               onClick={() => handleMarkAttendance(member.id, 'excused')}
                               className={cn(
-                                "h-8 px-2 text-[10px] font-bold uppercase rounded cursor-pointer",
+                                "h-8 px-2 sm:px-2.5 text-[10px] font-bold uppercase rounded cursor-pointer flex items-center justify-center gap-1 min-w-[32px]",
                                 status === 'excused'
                                   ? "bg-amber-100 text-amber-800 hover:bg-amber-150"
                                   : "text-slate-400 hover:bg-slate-50"
                               )}
+                              title="Excused"
                             >
-                              Excused
+                              <span className="hidden sm:inline">Excused</span>
+                              <Clock className="h-4 w-4 sm:hidden" />
                             </Button>
                             <Button
                               size="sm"
@@ -400,13 +420,15 @@ export function MeetingsClient({
                               disabled={isPendingAttendance}
                               onClick={() => handleMarkAttendance(member.id, 'absent')}
                               className={cn(
-                                "h-8 px-2 text-[10px] font-bold uppercase rounded cursor-pointer",
+                                "h-8 px-2 sm:px-2.5 text-[10px] font-bold uppercase rounded cursor-pointer flex items-center justify-center gap-1 min-w-[32px]",
                                 status === 'absent'
                                   ? "bg-red-100 text-red-800 hover:bg-red-150"
                                   : "text-slate-400 hover:bg-slate-50"
                               )}
+                              title="Absent"
                             >
-                              Absent
+                              <span className="hidden sm:inline">Absent</span>
+                              <XCircle className="h-4 w-4 sm:hidden" />
                             </Button>
                           </div>
                         ) : (

@@ -259,72 +259,125 @@ export default async function PerformancePage() {
           </CardHeader>
           <CardContent className="p-0">
             {internMetrics.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-wider select-none">
-                      <th className="py-3.5 px-6">Name</th>
-                      <th className="py-3.5 px-6 text-center">Tasks Completed</th>
-                      <th className="py-3.5 px-6">On-Time rate</th>
-                      <th className="py-3.5 px-6 text-center">Standup Check-ins</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-xs">
-                    {internMetrics.map(({ profile: intern, totalTasks, completedTasks, onTimeRate, standupCount, standupStreak }) => (
-                      <tr key={intern.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="py-4 px-6 flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-[#0B1F3A]/5 border border-[#0B1F3A]/10 flex items-center justify-center font-bold text-xs text-[#0B1F3A] uppercase shrink-0">
-                            {intern.name.substring(0, 2)}
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="font-bold text-slate-800 truncate">{intern.name}</span>
-                            <span className="text-[10px] text-slate-400 font-semibold truncate">
-                              {intern.teams?.name || 'Unassigned Squad'}
-                            </span>
-                          </div>
-                        </td>
-
-                        <td className="py-4 px-6 text-center font-bold text-slate-700">
-                          {completedTasks} / {totalTasks}
-                        </td>
-
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 bg-slate-100 h-1.5 rounded-full overflow-hidden shrink-0">
-                              <div
-                                className={cn(
-                                  "h-1.5 rounded-full transition-all",
-                                  onTimeRate >= 80 ? "bg-green-500" : onTimeRate >= 50 ? "bg-amber-500" : "bg-red-500"
-                                )}
-                                style={{ width: `${onTimeRate}%` }}
-                              />
-                            </div>
-                            <span className={cn(
-                              "font-bold shrink-0",
-                              onTimeRate >= 80 ? "text-green-600" : onTimeRate >= 50 ? "text-amber-600" : "text-red-500"
-                            )}>
-                              {onTimeRate}%
-                            </span>
-                          </div>
-                        </td>
-
-                        <td className="py-4 px-6">
-                          <div className="flex flex-col items-center">
-                            <span className="font-bold text-slate-700">{standupCount} days</span>
-                            {standupStreak > 0 ? (
-                              <span className="text-[10px] text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5 mt-1 font-bold inline-flex items-center gap-0.5 animate-pulse">
-                                🔥 {standupStreak} day streak
-                              </span>
-                            ) : (
-                              <span className="text-[10px] text-slate-400 mt-1 font-medium italic">No active streak</span>
-                            )}
-                          </div>
-                        </td>
+              <>
+                {/* Desktop View Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-wider select-none">
+                        <th className="py-3.5 px-6">Name</th>
+                        <th className="py-3.5 px-6 text-center">Tasks Completed</th>
+                        <th className="py-3.5 px-6">On-Time rate</th>
+                        <th className="py-3.5 px-6 text-center">Standup Check-ins</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-xs">
+                      {internMetrics.map(({ profile: intern, totalTasks, completedTasks, onTimeRate, standupCount, standupStreak }) => (
+                        <tr key={intern.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-4 px-6 flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-[#0B1F3A]/5 border border-[#0B1F3A]/10 flex items-center justify-center font-bold text-xs text-[#0B1F3A] uppercase shrink-0">
+                              {intern.name.substring(0, 2)}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-bold text-slate-800 truncate">{intern.name}</span>
+                              <span className="text-[10px] text-slate-400 font-semibold truncate">
+                                {intern.teams?.name || 'Unassigned Squad'}
+                              </span>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-6 text-center font-bold text-slate-700">
+                            {completedTasks} / {totalTasks}
+                          </td>
+
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-2">
+                              <div className="w-20 bg-slate-100 h-1.5 rounded-full overflow-hidden shrink-0">
+                                <div
+                                  className={cn(
+                                    "h-1.5 rounded-full transition-all",
+                                    onTimeRate >= 80 ? "bg-green-500" : onTimeRate >= 50 ? "bg-amber-500" : "bg-red-500"
+                                  )}
+                                  style={{ width: `${onTimeRate}%` }}
+                                />
+                              </div>
+                              <span className={cn(
+                                "font-bold shrink-0",
+                                onTimeRate >= 80 ? "text-green-600" : onTimeRate >= 50 ? "text-amber-600" : "text-red-500"
+                              )}>
+                                {onTimeRate}%
+                              </span>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-6">
+                            <div className="flex flex-col items-center">
+                              <span className="font-bold text-slate-700">{standupCount} days</span>
+                              {standupStreak > 0 ? (
+                                <span className="text-[10px] text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5 mt-1 font-bold inline-flex items-center gap-0.5 animate-pulse">
+                                  🔥 {standupStreak} day streak
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-slate-400 mt-1 font-medium italic">No active streak</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile View Card List */}
+                <div className="block md:hidden divide-y divide-slate-100 select-none">
+                  {internMetrics.map(({ profile: intern, totalTasks, completedTasks, onTimeRate, standupCount, standupStreak }) => (
+                    <div key={intern.id} className="p-4 flex flex-col gap-3 hover:bg-slate-50/50 transition-colors">
+                      {/* Profile row */}
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-full bg-[#0B1F3A]/5 border border-[#0B1F3A]/10 flex items-center justify-center font-bold text-xs text-[#0B1F3A] uppercase shrink-0">
+                          {intern.name.substring(0, 2)}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-bold text-xs text-slate-800 truncate">{intern.name}</span>
+                          <span className="text-[9px] text-slate-400 font-semibold truncate">
+                            {intern.teams?.name || 'Unassigned Squad'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Stat grid */}
+                      <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
+                        <div className="bg-slate-50 border border-slate-100 p-2 rounded-lg flex flex-col justify-center">
+                          <span className="text-slate-400 font-bold uppercase text-[8px] tracking-wider mb-0.5">Tasks Done</span>
+                          <span className="font-bold text-slate-750 text-xs">{completedTasks} / {totalTasks}</span>
+                        </div>
+
+                        <div className="bg-slate-50 border border-slate-100 p-2 rounded-lg flex flex-col justify-center">
+                          <span className="text-slate-400 font-bold uppercase text-[8px] tracking-wider mb-0.5">On-Time</span>
+                          <span className={cn(
+                            "font-extrabold text-xs",
+                            onTimeRate >= 80 ? "text-green-600" : onTimeRate >= 50 ? "text-amber-600" : "text-red-500"
+                          )}>
+                            {onTimeRate}%
+                          </span>
+                        </div>
+
+                        <div className="bg-slate-50 border border-slate-100 p-2 rounded-lg flex flex-col justify-center items-center">
+                          <span className="text-slate-400 font-bold uppercase text-[8px] tracking-wider mb-0.5">Check-ins</span>
+                          <span className="font-bold text-slate-750 text-xs">{standupCount} days</span>
+                        </div>
+                      </div>
+
+                      {/* Streak info */}
+                      {standupStreak > 0 && (
+                        <div className="bg-amber-50/50 border border-amber-100 rounded-lg py-1.5 px-2.5 text-[9px] font-bold text-amber-700 flex items-center justify-center gap-1">
+                          🔥 Active {standupStreak} day standup streak!
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="py-12 text-center text-slate-400 font-medium select-none">
                 No active interns registered in this view.

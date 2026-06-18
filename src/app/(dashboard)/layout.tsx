@@ -51,8 +51,8 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex h-screen w-screen bg-slate-50 overflow-hidden font-sans">
-      {/* Persistent Left Sidebar */}
-      <Sidebar user={userData} />
+      {/* Persistent Left Sidebar - hidden on mobile */}
+      <Sidebar user={userData} className="hidden md:flex shrink-0" />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -60,7 +60,7 @@ export default async function DashboardLayout({
         <Topbar user={userData} />
 
         {/* Dynamic Page Scroll Container */}
-        <main className="flex-1 overflow-y-auto px-8 py-6 relative focus:outline-none">
+        <main className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6 relative focus:outline-none">
           {children}
         </main>
       </div>

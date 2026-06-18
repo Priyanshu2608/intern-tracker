@@ -257,7 +257,8 @@ export function PeopleDirectory({ initialProfiles, teams, isAdmin }: PeopleDirec
       {/* 2. Directory Table */}
       <Card className="border-slate-200/80 shadow-sm overflow-hidden">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/70 border-b border-slate-100 text-slate-500 text-xs font-bold uppercase tracking-wider select-none">
@@ -402,6 +403,128 @@ export function PeopleDirectory({ initialProfiles, teams, isAdmin }: PeopleDirec
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card List View */}
+          <div className="block md:hidden divide-y divide-slate-100 select-none">
+            {filteredProfiles.length > 0 ? (
+              filteredProfiles.map((profile) => (
+                <div
+                  key={profile.id}
+                  className={cn(
+                    "p-4 flex flex-col gap-3 hover:bg-slate-50/50 transition-colors",
+                    profile.status === 'inactive' && "opacity-60 bg-slate-50/20"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#0B1F3A] to-slate-400 border border-slate-200 flex items-center justify-center font-bold text-sm text-white uppercase shrink-0 shadow-inner">
+                      {profile.name.substring(0, 2)}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-bold text-[#0B1F3A] truncate">{profile.name}</span>
+                      <span className="text-xs text-slate-400 truncate font-medium">{profile.email}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5",
+                        profile.role === 'admin' && "bg-red-50 text-red-700 border border-red-150",
+                        profile.role === 'lead' && "bg-amber-50 text-amber-700 border border-amber-150",
+                        profile.role === 'intern' && "bg-green-50 text-green-700 border border-green-150"
+                      )}
+                    >
+                      {profile.role}
+                    </Badge>
+
+                    {profile.teams ? (
+                      <span className="font-bold text-slate-650 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[9px] uppercase">
+                        {profile.teams.name}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 text-[9px] font-bold uppercase italic">No Squad</span>
+                    )}
+
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5",
+                        profile.status === 'active'
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      )}
+                    >
+                      {profile.status}
+                    </Badge>
+
+                    {profile.must_reset_password && (
+                      <span className="text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider animate-pulse">
+                        Reset Required
+                      </span>
+                    )}
+                  </div>
+
+                  {isAdmin && (
+                    <div className="flex items-center gap-2 pt-2 border-t border-slate-100 justify-end">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={isPending}
+                        onClick={() => handleToggleStatus(profile.id, profile.status)}
+                        className={cn(
+                          "h-8 px-2.5 text-xs font-semibold gap-1.5 cursor-pointer rounded-lg",
+                          profile.status === 'active' ? "text-red-500 hover:text-red-600 hover:bg-red-50" : "text-green-500 hover:text-green-600 hover:bg-green-50"
+                        )}
+                      >
+                        {profile.status === 'active' ? (
+                          <>
+                            <UserX className="h-3.5 w-3.5" />
+                            Deactivate
+                          </>
+                        ) : (
+                          <>
+                            <UserCheck className="h-3.5 w-3.5" />
+                            Activate
+                          </>
+                        )}
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setSelectedUser(profile)
+                          setIsEditOpen(true)
+                        }}
+                        className="h-8 px-2.5 text-xs font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 cursor-pointer gap-1.5 rounded-lg"
+                      >
+                        <Edit2 className="h-3.5 w-3.5" />
+                        Edit
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setSelectedUser(profile)
+                          setIsPasswordResetOpen(true)
+                        }}
+                        className="h-8 px-2.5 text-xs font-semibold text-[#C9952A] hover:text-[#C9952A]/90 hover:bg-[#C9952A]/5 cursor-pointer gap-1.5 rounded-lg"
+                      >
+                        <KeyRound className="h-3.5 w-3.5" />
+                        Reset Pass
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="py-12 text-center text-slate-450 font-medium">
+                No team members found matching search filters.
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

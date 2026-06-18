@@ -24,9 +24,10 @@ interface SidebarProps {
     role: 'admin' | 'lead' | 'intern'
     team_name?: string
   }
+  className?: string
 }
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, className }: SidebarProps) {
   const pathname = usePathname()
 
   const links = [
@@ -77,7 +78,7 @@ export function Sidebar({ user }: SidebarProps) {
   const filteredLinks = links.filter((link) => link.roles.includes(user.role))
 
   return (
-    <aside className="w-64 bg-[#0B1F3A] text-white flex flex-col h-screen border-r border-[#C9952A]/10 select-none">
+    <aside className={cn("w-64 bg-[#0B1F3A] text-white flex flex-col h-screen border-r border-[#C9952A]/10 select-none", className)}>
       {/* Brand Section */}
       <div className="p-6 border-b border-slate-700/40 flex items-center gap-3">
         <div className="h-9 w-9 rounded-lg bg-[#C9952A]/15 border border-[#C9952A]/30 flex items-center justify-center text-[#C9952A]">

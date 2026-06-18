@@ -211,36 +211,61 @@ export default async function AdminPage() {
         </CardHeader>
         <CardContent className="p-0">
           {teamStats.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-wider select-none">
-                    <th className="py-3 px-6">Squad Name</th>
-                    <th className="py-3 px-6">Squad Lead</th>
-                    <th className="py-3 px-6 text-center">Active Members</th>
-                    <th className="py-3 px-6 text-right">Settings</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
-                  {teamStats.map((team) => (
-                    <tr key={team.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="py-3.5 px-6 font-bold text-slate-800">{team.name}</td>
-                      <td className="py-3.5 px-6 font-semibold text-slate-500">{team.leadName}</td>
-                      <td className="py-3.5 px-6 text-center font-bold text-slate-700">
-                        {team.memberCount} people
-                      </td>
-                      <td className="py-3.5 px-6 text-right">
-                        <Link href="/people">
-                          <Button variant="ghost" size="sm" className="text-xs text-[#C9952A] hover:bg-[#C9952A]/5 hover:text-[#C9952A] font-semibold gap-1.5 cursor-pointer">
-                            Configure members <ArrowRight className="h-3 w-3" />
-                          </Button>
-                        </Link>
-                      </td>
+            <>
+              {/* Desktop View Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-55 border-b border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-wider select-none">
+                      <th className="py-3 px-6">Squad Name</th>
+                      <th className="py-3 px-6">Squad Lead</th>
+                      <th className="py-3 px-6 text-center">Active Members</th>
+                      <th className="py-3 px-6 text-right">Settings</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-xs">
+                    {teamStats.map((team) => (
+                      <tr key={team.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="py-3.5 px-6 font-bold text-slate-800">{team.name}</td>
+                        <td className="py-3.5 px-6 font-semibold text-slate-500">{team.leadName}</td>
+                        <td className="py-3.5 px-6 text-center font-bold text-slate-700">
+                          {team.memberCount} people
+                        </td>
+                        <td className="py-3.5 px-6 text-right">
+                          <Link href="/people">
+                            <Button variant="ghost" size="sm" className="text-xs text-[#C9952A] hover:bg-[#C9952A]/5 hover:text-[#C9952A] font-semibold gap-1.5 cursor-pointer">
+                              Configure members <ArrowRight className="h-3 w-3" />
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile View Card List */}
+              <div className="block md:hidden divide-y divide-slate-100 select-none">
+                {teamStats.map((team) => (
+                  <div key={team.id} className="p-4 flex flex-col gap-2 hover:bg-slate-50/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm text-slate-800">{team.name}</span>
+                      <span className="text-[10px] text-slate-550 font-bold bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full">
+                        {team.memberCount} members
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs pt-1">
+                      <span className="text-slate-400 font-semibold">Lead: <span className="text-slate-650 font-bold">{team.leadName}</span></span>
+                      <Link href="/people">
+                        <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-[#C9952A] hover:bg-[#C9952A]/5 hover:text-[#C9952A] font-bold gap-1 cursor-pointer">
+                          Configure <ArrowRight className="h-3 w-3" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="py-12 text-center text-slate-400 font-medium">
               No squads registered. Create a new squad in the People & Teams page.
