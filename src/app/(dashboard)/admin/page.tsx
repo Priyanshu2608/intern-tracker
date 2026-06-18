@@ -48,33 +48,36 @@ export default async function AdminPage() {
     .from('profiles')
     .select('role, status, team_id, name, must_reset_password')
 
-  const totalUsers = allProfiles?.length || 0
-  const adminCount = allProfiles?.filter((p) => p.role === 'admin').length || 0
-  const leadCount = allProfiles?.filter((p) => p.role === 'lead').length || 0
-  const internCount = allProfiles?.filter((p) => p.role === 'intern').length || 0
-  const activeCount = allProfiles?.filter((p) => p.status === 'active').length || 0
-  const inactiveCount = allProfiles?.filter((p) => p.status === 'inactive').length || 0
+  const profilesList = (allProfiles || []) as any[]
+  const totalUsers = profilesList.length
+  const adminCount = profilesList.filter((p: any) => p.role === 'admin').length
+  const leadCount = profilesList.filter((p: any) => p.role === 'lead').length
+  const internCount = profilesList.filter((p: any) => p.role === 'intern').length
+  const activeCount = profilesList.filter((p: any) => p.status === 'active').length
+  const inactiveCount = profilesList.filter((p: any) => p.status === 'inactive').length
 
   // 4. Fetch all tasks for stats computation
   const { data: allTasks } = await supabase
     .from('tasks')
     .select('status')
 
-  const totalTasks = allTasks?.length || 0
-  const todoTasks = allTasks?.filter((t) => t.status === 'todo').length || 0
-  const inProgressTasks = allTasks?.filter((t) => t.status === 'in_progress').length || 0
-  const reviewTasks = allTasks?.filter((t) => t.status === 'review').length || 0
-  const doneTasks = allTasks?.filter((t) => t.status === 'done').length || 0
-  const blockedTasks = allTasks?.filter((t) => t.status === 'blocked').length || 0
+  const tasksList = (allTasks || []) as any[]
+  const totalTasks = tasksList.length
+  const todoTasks = tasksList.filter((t: any) => t.status === 'todo').length
+  const inProgressTasks = tasksList.filter((t: any) => t.status === 'in_progress').length
+  const reviewTasks = tasksList.filter((t: any) => t.status === 'review').length
+  const doneTasks = tasksList.filter((t: any) => t.status === 'done').length
+  const blockedTasks = tasksList.filter((t: any) => t.status === 'blocked').length
 
   // 5. Fetch teams to compute sizes
   const { data: dbTeams } = await supabase
     .from('teams')
     .select('*')
 
-  const teamStats = dbTeams?.map((team) => {
-    const teamMembers = allProfiles?.filter((p) => p.team_id === team.id) || []
-    const lead = teamMembers.find((p) => p.role === 'lead')
+  const teamsList = (dbTeams || []) as any[]
+  const teamStats = teamsList.map((team: any) => {
+    const teamMembers = profilesList.filter((p: any) => p.team_id === team.id)
+    const lead = teamMembers.find((p: any) => p.role === 'lead')
 
     return {
       ...team,
@@ -159,7 +162,7 @@ export default async function AdminPage() {
             <div className="flex items-center justify-between text-xs pt-1">
               <span className="text-slate-400 font-semibold">Pending First Login Reset</span>
               <Badge className="bg-amber-100 text-amber-800 border-none font-bold text-[10px]">
-                {allProfiles?.filter((p) => p.must_reset_password).length || 0}
+                {profilesList.filter((p: any) => p.must_reset_password).length}
               </Badge>
             </div>
           </CardContent>

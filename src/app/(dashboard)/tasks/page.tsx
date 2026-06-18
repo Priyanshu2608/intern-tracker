@@ -62,14 +62,18 @@ export default async function TasksPage() {
   }
 
   // 4. Fetch list of eligible assignees (active users)
-  // Leads can only assign to members of their own team. Admins can assign to anyone.
+  // Admin is never assignable (they are managers/observers only).
+  // Leads can only assign to interns in their own team.
+  // Admins (when creating tasks) can assign to any lead or intern.
   let assigneesQuery = supabase
     .from('profiles')
     .select('id, name, role, team_id')
     .eq('status', 'active')
+    .neq('role', 'admin') // Never allow assigning to admin
 
   if (isLead && myTeamId) {
-    assigneesQuery = assigneesQuery.eq('team_id', myTeamId)
+    // Leads can only assign to interns on their team
+    assigneesQuery = assigneesQuery.eq('team_id', myTeamId).eq('role', 'intern')
   }
 
   const { data: assignees } = await assigneesQuery.order('name', { ascending: true })

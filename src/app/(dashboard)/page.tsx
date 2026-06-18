@@ -58,6 +58,7 @@ export default async function DashboardPage() {
     .neq('status', 'done')
     .order('due_date', { ascending: true })
     .limit(5)
+  const openTasksList = (openTasks || []) as any[]
 
   // Fetch today's standup submission
   const todayStr = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD
@@ -79,6 +80,7 @@ export default async function DashboardPage() {
     .gte('start_time', new Date().toISOString())
     .order('start_time', { ascending: true })
     .limit(3)
+  const upcomingMeetingsList = (upcomingMeetings || []) as any[]
 
   // Fetch all tasks for stats
   let statsTasksQuery = supabase.from('tasks').select('status, due_date')
@@ -88,15 +90,16 @@ export default async function DashboardPage() {
     statsTasksQuery = statsTasksQuery.eq('team_id', myTeamId)
   }
   const { data: statsTasks } = await statsTasksQuery
-  const totalTasks = statsTasks?.length || 0
-  const completedTasks = statsTasks?.filter((t) => t.status === 'done').length || 0
+  const statsTasksList = (statsTasks || []) as any[]
+  const totalTasks = statsTasksList.length
+  const completedTasks = statsTasksList.filter((t: any) => t.status === 'done').length
   const overdueTasks =
-    statsTasks?.filter(
-      (t) =>
+    statsTasksList.filter(
+      (t: any) =>
         t.status !== 'done' &&
         t.due_date &&
         new Date(t.due_date + 'T23:59:59') < new Date()
-    ).length || 0
+    ).length
 
   // Fetch active squad members
   let teamSize = 0
@@ -248,9 +251,9 @@ export default async function DashboardPage() {
             </Link>
           </CardHeader>
           <CardContent className="p-0">
-            {openTasks && openTasks.length > 0 ? (
+            {openTasksList.length > 0 ? (
               <div className="divide-y divide-slate-100">
-                {openTasks.map((task) => {
+                {openTasksList.map((task: any) => {
                   const isOverdue = task.due_date && new Date(task.due_date + 'T23:59:59') < new Date()
 
                   return (
@@ -340,9 +343,9 @@ export default async function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              {upcomingMeetings && upcomingMeetings.length > 0 ? (
+              {upcomingMeetingsList.length > 0 ? (
                 <div className="divide-y divide-slate-100">
-                  {upcomingMeetings.map((meeting) => {
+                  {upcomingMeetingsList.map((meeting: any) => {
                     const start = new Date(meeting.start_time)
                     const timeStr = start.toLocaleTimeString('en-US', {
                       hour: '2-digit',

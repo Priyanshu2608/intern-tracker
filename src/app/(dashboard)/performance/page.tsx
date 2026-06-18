@@ -123,6 +123,7 @@ export default async function PerformancePage() {
   }
 
   const { data: tasks } = await tasksQuery
+  const tasksList = (tasks || []) as any[]
 
   // 5. Fetch standups (scoped to team or all)
   let standupsQuery = supabase
@@ -130,6 +131,7 @@ export default async function PerformancePage() {
     .select('id, user_id, date')
 
   const { data: standups } = await standupsQuery
+  const standupsList = (standups || []) as any[]
 
   // 6. Fetch Contribution Feed (Recent 10 completed or updated tasks)
   let historyQuery = supabase
@@ -148,11 +150,11 @@ export default async function PerformancePage() {
 
   // 7. Calculate stats per intern
   const internMetrics = interns.map((intern) => {
-    const internTasks = tasks?.filter((t) => t.assignee_id === intern.id) || []
-    const completedTasksCount = internTasks.filter((t) => t.status === 'done').length
+    const internTasks = tasksList.filter((t: any) => t.assignee_id === intern.id)
+    const completedTasksCount = internTasks.filter((t: any) => t.status === 'done').length
     
     // On-Time completion: completed tasks where updated_at <= due_date (or due_date is null/not set)
-    const onTimeTasks = internTasks.filter((t) => {
+    const onTimeTasks = internTasks.filter((t: any) => {
       if (t.status !== 'done') return false
       if (!t.due_date) return true // No due date = always on time
       const completedDate = new Date(t.updated_at)
@@ -165,7 +167,7 @@ export default async function PerformancePage() {
       : 100 // default to 100% if no tasks completed yet
 
     // Standups count and streak
-    const userStandups = standups?.filter((s) => s.user_id === intern.id) || []
+    const userStandups = standupsList.filter((s: any) => s.user_id === intern.id)
     const standupCount = userStandups.length
     const standupStreak = calculateStandupStreak(userStandups)
 
@@ -180,8 +182,8 @@ export default async function PerformancePage() {
   })
 
   // Global Org / Squad Metrics
-  const totalTasksCount = tasks?.length || 0
-  const completedTasksCount = tasks?.filter((t) => t.status === 'done').length || 0
+  const totalTasksCount = tasksList.length
+  const completedTasksCount = tasksList.filter((t: any) => t.status === 'done').length
   const globalCompletionRate = totalTasksCount > 0 ? Math.round((completedTasksCount / totalTasksCount) * 100) : 0
 
   return (

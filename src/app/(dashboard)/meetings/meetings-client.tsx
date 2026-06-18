@@ -2,6 +2,7 @@
 
 import { useState, useActionState, useTransition } from 'react'
 import { scheduleMeeting, markAttendance } from './actions'
+import { MeetingCalendar } from './meeting-calendar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -219,7 +220,13 @@ export function MeetingsClient({
         </div>
       )}
 
-      {/* 3. Main content grid */}
+      {/* 3. Meeting Calendar — visible to ALL roles */}
+      <MeetingCalendar
+        meetings={meetings}
+        onSelectMeeting={(meeting) => setSelectedMeeting(meeting)}
+      />
+
+      {/* 4. Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left Column: Meetings list (Takes 2 cols) - hidden on mobile when a meeting is selected */}
         <div className={cn(

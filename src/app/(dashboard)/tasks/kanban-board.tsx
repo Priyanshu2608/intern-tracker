@@ -622,7 +622,9 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                   <SelectContent>
                     <SelectItem value="">Unassigned</SelectItem>
                     {assignees.map((person) => (
-                      <SelectItem key={person.id} value={person.id}>{person.name}</SelectItem>
+                      <SelectItem key={person.id} value={person.id}>
+                        {person.name} — <span className="capitalize text-slate-400">{person.role === 'lead' ? 'Squad Leader' : person.role}</span>
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -757,7 +759,9 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                         <SelectContent>
                           <SelectItem value="">Unassigned</SelectItem>
                           {assignees.map((person) => (
-                            <SelectItem key={person.id} value={person.id}>{person.name}</SelectItem>
+                            <SelectItem key={person.id} value={person.id}>
+                              {person.name} — <span className="capitalize text-slate-400">{person.role === 'lead' ? 'Squad Leader' : person.role}</span>
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
