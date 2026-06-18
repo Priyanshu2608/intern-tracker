@@ -450,7 +450,7 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
           </Select>
 
           <Select value={filterAssignee} onValueChange={(val) => setFilterAssignee(val || 'all')}>
-            <SelectTrigger className="w-full sm:w-44 h-10 border-slate-200">
+            <SelectTrigger className="w-full sm:w-44 h-10 border-slate-200 text-sm">
               <SelectValue placeholder="Assignee" />
             </SelectTrigger>
             <SelectContent>
@@ -458,7 +458,7 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
               <SelectItem value="unassigned">Unassigned</SelectItem>
               {assignees.map((person) => (
                 <SelectItem key={person.id} value={person.id}>
-                  {person.name}
+                  {`${person.name} — ${person.role === 'lead' ? 'Squad Leader' : person.role.charAt(0).toUpperCase() + person.role.slice(1)}`}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -555,53 +555,53 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
 
       {/* ==================== CREATE TASK DIALOG ==================== */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[520px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-[#0B1F3A]">Create Task</DialogTitle>
-            <DialogDescription className="text-xs text-slate-400">
+            <DialogDescription className="text-sm text-slate-400">
               Scaffold a task card for your squad and assign it.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateSubmit} className="space-y-4 py-2">
+          <form onSubmit={handleCreateSubmit} className="space-y-5 py-2">
             {errorMsg && (
               <div className="p-3 text-xs bg-red-50 border border-red-200 text-red-600 rounded-lg font-medium">
                 {errorMsg}
               </div>
             )}
 
-            <div className="space-y-1.5">
-              <Label htmlFor="title" className="text-xs font-bold text-slate-600">Task Title</Label>
-              <Input id="title" name="title" required placeholder="e.g. Implement Supabase middleware cookies" className="h-10 border-slate-200" />
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-sm font-bold text-slate-600">Task Title</Label>
+              <Input id="title" name="title" required placeholder="e.g. Implement Supabase middleware cookies" className="h-11 border-slate-200 text-sm" />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="description" className="text-xs font-bold text-slate-600">Description</Label>
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-sm font-bold text-slate-600">Description</Label>
               <textarea
                 id="description"
                 name="description"
                 rows={3}
                 placeholder="Details of the task assignment..."
-                className="w-full border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:border-[#0B1F3A] focus:ring-1 focus:ring-[#0B1F3A]"
+                className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:border-[#0B1F3A] focus:ring-1 focus:ring-[#0B1F3A]"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="acceptanceCriteria" className="text-xs font-bold text-slate-600">Acceptance Criteria</Label>
+            <div className="space-y-2">
+              <Label htmlFor="acceptanceCriteria" className="text-sm font-bold text-slate-600">Acceptance Criteria</Label>
               <textarea
                 id="acceptanceCriteria"
                 name="acceptanceCriteria"
                 rows={2}
                 placeholder="Steps needed to mark this task as complete..."
-                className="w-full border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:border-[#0B1F3A] focus:ring-1 focus:ring-[#0B1F3A]"
+                className="w-full border border-slate-200 rounded-lg p-3 text-sm outline-none focus:border-[#0B1F3A] focus:ring-1 focus:ring-[#0B1F3A]"
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="priority" className="text-xs font-bold text-slate-600">Priority</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="priority" className="text-sm font-bold text-slate-600">Priority</Label>
                 <Select name="priority" defaultValue="medium">
-                  <SelectTrigger className="h-10 border-slate-200">
+                  <SelectTrigger className="h-11 border-slate-200 text-sm">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -613,30 +613,30 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                 </Select>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="assigneeId" className="text-xs font-bold text-slate-600">Assignee</Label>
+              <div className="space-y-2">
+                <Label htmlFor="assigneeId" className="text-sm font-bold text-slate-600">Assignee</Label>
                 <Select name="assigneeId" defaultValue="">
-                  <SelectTrigger className="h-10 border-slate-200">
+                  <SelectTrigger className="h-11 border-slate-200 text-sm">
                     <SelectValue placeholder="Unassigned" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Unassigned</SelectItem>
                     {assignees.map((person) => (
                       <SelectItem key={person.id} value={person.id}>
-                        {person.name} — <span className="capitalize text-slate-400">{person.role === 'lead' ? 'Squad Leader' : person.role}</span>
+                        {`${person.name} — ${person.role === 'lead' ? 'Squad Leader' : person.role.charAt(0).toUpperCase() + person.role.slice(1)}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="dueDate" className="text-xs font-bold text-slate-600">Due Date</Label>
+              <div className="space-y-2">
+                <Label htmlFor="dueDate" className="text-sm font-bold text-slate-600">Due Date</Label>
                 <Input
                   id="dueDate"
                   name="dueDate"
                   type="date"
-                  className="h-10 border-slate-200 cursor-pointer"
+                  className="h-11 border-slate-200 cursor-pointer text-sm"
                 />
               </div>
             </div>
@@ -750,17 +750,17 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="edit-assigneeId" className="text-xs font-bold text-slate-600">Assignee</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-assigneeId" className="text-sm font-bold text-slate-600">Assignee</Label>
                       <Select name="assigneeId" defaultValue={selectedTask.assignee_id || ""}>
-                        <SelectTrigger className="h-10 border-slate-200">
+                        <SelectTrigger className="h-11 border-slate-200 text-sm">
                           <SelectValue placeholder="Unassigned" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="">Unassigned</SelectItem>
                           {assignees.map((person) => (
                             <SelectItem key={person.id} value={person.id}>
-                              {person.name} — <span className="capitalize text-slate-400">{person.role === 'lead' ? 'Squad Leader' : person.role}</span>
+                              {`${person.name} — ${person.role === 'lead' ? 'Squad Leader' : person.role.charAt(0).toUpperCase() + person.role.slice(1)}`}
                             </SelectItem>
                           ))}
                         </SelectContent>
