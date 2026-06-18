@@ -209,26 +209,28 @@ export function PeopleDirectory({ initialProfiles, teams, isAdmin }: PeopleDirec
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
+                {isAdmin && <SelectItem value="admin">Admin</SelectItem>}
                 <SelectItem value="lead">Lead</SelectItem>
                 <SelectItem value="intern">Intern</SelectItem>
               </SelectContent>
             </Select>
 
-            <Select value={selectedTeam} onValueChange={(val) => setSelectedTeam(val || 'all')}>
-              <SelectTrigger className="w-full sm:w-44 h-10 border-slate-200">
-                <SelectValue placeholder="Squad / Team" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Teams</SelectItem>
-                <SelectItem value="none">No Team Assigned</SelectItem>
-                {teams.map((team) => (
-                  <SelectItem key={team.id} value={team.id}>
-                    {team.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {isAdmin && (
+              <Select value={selectedTeam} onValueChange={(val) => setSelectedTeam(val || 'all')}>
+                <SelectTrigger className="w-full sm:w-44 h-10 border-slate-200">
+                  <SelectValue placeholder="Squad / Team" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Teams</SelectItem>
+                  <SelectItem value="none">No Team Assigned</SelectItem>
+                  {teams.map((team) => (
+                    <SelectItem key={team.id} value={team.id}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {/* Admin action triggers */}

@@ -16,10 +16,10 @@ export default async function PeoplePage() {
     redirect('/login')
   }
 
-  // 2. Get current user's profile role
+  // 2. Get current user's profile
   const { data: currentProfile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, team_id, teams(name)')
     .eq('id', user.id)
     .single()
 
@@ -28,26 +28,56 @@ export default async function PeoplePage() {
   }
 
   const isAdmin = currentProfile.role === 'admin'
+  const myTeamId = currentProfile.team_id
+  const myTeamName = Array.isArray(currentProfile.teams)
+    ? currentProfile.teams[0]?.name
+    : currentProfile.teams?.name
 
-  // 3. Fetch all profiles with their associated team names
-  const { data: profiles, error: profilesError } = await supabase
+  // 3. Fetch profiles — admins see everyone; leads/interns see only their squad
+  let profilesQuery = supabase
     .from('profiles')
     .select('*, teams(id, name)')
     .order('name', { ascending: true })
+
+  if (!isAdmin) {
+    if (myTeamId) {
+      profilesQuery = profilesQuery.eq('team_id', myTeamId).neq('role', 'admin')
+    } else {
+      profilesQuery = profilesQuery.eq('id', user.id)
+    }
+  }
+
+  const { data: profiles, error: profilesError } = await profilesQuery
 
   if (profilesError) {
     console.error('Error loading profiles:', profilesError)
   }
 
-  // 4. Fetch all teams for user assignment
-  const { data: teams, error: teamsError } = await supabase
+  // 4. Fetch teams — admins see all; leads/interns see only their own squad
+  let teamsQuery = supabase
     .from('teams')
     .select('*')
     .order('name', { ascending: true })
 
+  if (!isAdmin) {
+    if (myTeamId) {
+      teamsQuery = teamsQuery.eq('id', myTeamId)
+    } else {
+      teamsQuery = teamsQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+    }
+  }
+
+  const { data: teams, error: teamsError } = await teamsQuery
+
   if (teamsError) {
     console.error('Error loading teams:', teamsError)
   }
+
+  const pageDescription = isAdmin
+    ? 'Directory of all interns, leads, administrators, and squads.'
+    : myTeamName
+      ? `Members of ${myTeamName} — interns and squad leads in your team.`
+      : 'Your profile — no squad assigned.'
 
   return (
     <div className="space-y-6">
@@ -55,7 +85,7 @@ export default async function PeoplePage() {
         <div>
           <h1 className="text-2xl font-bold text-[#0B1F3A]">People & Teams</h1>
           <p className="text-slate-500 text-sm mt-1">
-            Directory of all interns, leads, administrators, and squads.
+            {pageDescription}
           </p>
         </div>
       </div>

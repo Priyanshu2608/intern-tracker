@@ -350,9 +350,9 @@ export function MeetingsClient({
                   <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded">
                     <Clock className="h-3.5 w-3.5 text-slate-400" />
                     <span>
-                      {new Date(selectedMeeting.start_time).toLocaleDateString()}{' '}
+                      {new Date(selectedMeeting.start_time).toLocaleDateString('en-US')}{' '}
                       at{' '}
-                      {new Date(selectedMeeting.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(selectedMeeting.start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded">

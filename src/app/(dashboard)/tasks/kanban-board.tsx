@@ -105,6 +105,42 @@ interface KanbanBoardProps {
   }
 }
 
+function formatAssigneeRole(role: string) {
+  return role === 'lead' ? 'Squad Leader' : role.charAt(0).toUpperCase() + role.slice(1)
+}
+
+function formatAssigneeLabel(person: ProfileSummary) {
+  return `${person.name} — ${formatAssigneeRole(person.role)}`
+}
+
+function buildAssigneeItems(assignees: ProfileSummary[]) {
+  return [
+    { value: '', label: 'Unassigned' },
+    ...assignees.map((person) => ({
+      value: person.id,
+      label: formatAssigneeLabel(person),
+    })),
+  ]
+}
+
+function buildFilterAssigneeItems(assignees: ProfileSummary[]) {
+  return [
+    { value: 'all', label: 'All Assignees' },
+    { value: 'unassigned', label: 'Unassigned' },
+    ...assignees.map((person) => ({
+      value: person.id,
+      label: formatAssigneeLabel(person),
+    })),
+  ]
+}
+
+function buildTeamFilterItems(teams: Team[]) {
+  return [
+    { value: 'all', label: 'All Squads' },
+    ...teams.map((team) => ({ value: team.id, label: team.name })),
+  ]
+}
+
 export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: KanbanBoardProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -298,6 +334,7 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
   ) => {
     return (
       <div
+        key={column.id}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => handleDrop(e, column.id)}
         className={cn(
@@ -449,7 +486,11 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
             </SelectContent>
           </Select>
 
-          <Select value={filterAssignee} onValueChange={(val) => setFilterAssignee(val || 'all')}>
+          <Select
+            value={filterAssignee}
+            onValueChange={(val) => setFilterAssignee(val || 'all')}
+            items={buildFilterAssigneeItems(assignees)}
+          >
             <SelectTrigger className="w-full sm:w-44 h-10 border-slate-200 text-sm">
               <SelectValue placeholder="Assignee" />
             </SelectTrigger>
@@ -458,14 +499,18 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
               <SelectItem value="unassigned">Unassigned</SelectItem>
               {assignees.map((person) => (
                 <SelectItem key={person.id} value={person.id}>
-                  {`${person.name} — ${person.role === 'lead' ? 'Squad Leader' : person.role.charAt(0).toUpperCase() + person.role.slice(1)}`}
+                  {formatAssigneeLabel(person)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           {currentUser.role === 'admin' && (
-            <Select value={filterTeam} onValueChange={(val) => setFilterTeam(val || 'all')}>
+            <Select
+              value={filterTeam}
+              onValueChange={(val) => setFilterTeam(val || 'all')}
+              items={buildTeamFilterItems(teams)}
+            >
               <SelectTrigger className="w-full sm:w-44 h-10 border-slate-200">
                 <SelectValue placeholder="Squad / Team" />
               </SelectTrigger>
@@ -598,10 +643,10 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <Label htmlFor="priority" className="text-sm font-bold text-slate-600">Priority</Label>
                 <Select name="priority" defaultValue="medium">
-                  <SelectTrigger className="h-11 border-slate-200 text-sm">
+                  <SelectTrigger className="w-full min-w-0 h-11 border-slate-200 text-sm">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -613,30 +658,30 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <Label htmlFor="assigneeId" className="text-sm font-bold text-slate-600">Assignee</Label>
-                <Select name="assigneeId" defaultValue="">
-                  <SelectTrigger className="h-11 border-slate-200 text-sm">
+                <Select name="assigneeId" defaultValue="" items={buildAssigneeItems(assignees)}>
+                  <SelectTrigger className="w-full min-w-0 h-11 border-slate-200 text-sm">
                     <SelectValue placeholder="Unassigned" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Unassigned</SelectItem>
                     {assignees.map((person) => (
                       <SelectItem key={person.id} value={person.id}>
-                        {`${person.name} — ${person.role === 'lead' ? 'Squad Leader' : person.role.charAt(0).toUpperCase() + person.role.slice(1)}`}
+                        {formatAssigneeLabel(person)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <Label htmlFor="dueDate" className="text-sm font-bold text-slate-600">Due Date</Label>
                 <Input
                   id="dueDate"
                   name="dueDate"
                   type="date"
-                  className="h-11 border-slate-200 cursor-pointer text-sm"
+                  className="h-11 border-slate-200 cursor-pointer text-sm w-full"
                 />
               </div>
             </div>
@@ -750,17 +795,21 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="space-y-2 min-w-0">
                       <Label htmlFor="edit-assigneeId" className="text-sm font-bold text-slate-600">Assignee</Label>
-                      <Select name="assigneeId" defaultValue={selectedTask.assignee_id || ""}>
-                        <SelectTrigger className="h-11 border-slate-200 text-sm">
+                      <Select
+                        name="assigneeId"
+                        defaultValue={selectedTask.assignee_id || ""}
+                        items={buildAssigneeItems(assignees)}
+                      >
+                        <SelectTrigger className="w-full min-w-0 h-11 border-slate-200 text-sm">
                           <SelectValue placeholder="Unassigned" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="">Unassigned</SelectItem>
                           {assignees.map((person) => (
                             <SelectItem key={person.id} value={person.id}>
-                              {`${person.name} — ${person.role === 'lead' ? 'Squad Leader' : person.role.charAt(0).toUpperCase() + person.role.slice(1)}`}
+                              {formatAssigneeLabel(person)}
                             </SelectItem>
                           ))}
                         </SelectContent>
