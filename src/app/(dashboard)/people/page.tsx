@@ -48,12 +48,6 @@ export default async function PeoplePage() {
     }
   }
 
-  const { data: profiles, error: profilesError } = await profilesQuery
-
-  if (profilesError) {
-    console.error('Error loading profiles:', profilesError)
-  }
-
   // 4. Fetch teams — admins see all; leads/interns see only their own squad
   let teamsQuery = supabase
     .from('teams')
@@ -68,7 +62,18 @@ export default async function PeoplePage() {
     }
   }
 
-  const { data: teams, error: teamsError } = await teamsQuery
+  // Run queries concurrently to resolve waterfalls in production
+  const [
+    { data: profiles, error: profilesError },
+    { data: teams, error: teamsError }
+  ] = await Promise.all([
+    profilesQuery,
+    teamsQuery
+  ])
+
+  if (profilesError) {
+    console.error('Error loading profiles:', profilesError)
+  }
 
   if (teamsError) {
     console.error('Error loading teams:', teamsError)

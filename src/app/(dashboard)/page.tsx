@@ -59,42 +59,40 @@ export default async function DashboardPage() {
     // Lead or Admin: Show both tasks assigned to them AND tasks created by them (given tasks)
     tasksQuery = tasksQuery.or(`assignee_id.eq.${user.id},created_by.eq.${user.id}`)
   }
-  const { data: openTasks } = await tasksQuery
-    .neq('status', 'done')
-    .order('due_date', { ascending: true })
-    .limit(5)
-  const openTasksList = (openTasks || []) as any[]
-
   // Fetch today's standup submission
   const todayStr = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD
-  const { data: todayStandup } = await supabase
-    .from('standups')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('date', todayStr)
-    .maybeSingle()
 
-  // Fetch upcoming meetings
+  // Fetch upcoming meetings query construction
   let meetingsQuery = supabase.from('meetings').select('*')
   if (myTeamId) {
     meetingsQuery = meetingsQuery.or(`team_id.eq.${myTeamId},team_id.is.null`)
   } else {
     meetingsQuery = meetingsQuery.is('team_id', null)
   }
-  const { data: upcomingMeetings } = await meetingsQuery
-    .gte('start_time', new Date().toISOString())
-    .order('start_time', { ascending: true })
-    .limit(3)
-  const upcomingMeetingsList = (upcomingMeetings || []) as any[]
 
-  // Fetch all tasks for stats (aligned with what they can view)
+  // Fetch all tasks for stats query construction
   let statsTasksQuery = supabase.from('tasks').select('status, due_date')
   if (isIntern) {
     statsTasksQuery = statsTasksQuery.eq('assignee_id', user.id)
   } else {
     statsTasksQuery = statsTasksQuery.or(`assignee_id.eq.${user.id},created_by.eq.${user.id}`)
   }
-  const { data: statsTasks } = await statsTasksQuery
+
+  // Run all queries concurrently to resolve waterfalls in production
+  const [
+    { data: openTasks },
+    { data: todayStandup },
+    { data: upcomingMeetings },
+    { data: statsTasks }
+  ] = await Promise.all([
+    tasksQuery.neq('status', 'done').order('due_date', { ascending: true }).limit(5),
+    supabase.from('standups').select('*').eq('user_id', user.id).eq('date', todayStr).maybeSingle(),
+    meetingsQuery.gte('start_time', new Date().toISOString()).order('start_time', { ascending: true }).limit(3),
+    statsTasksQuery
+  ])
+
+  const openTasksList = (openTasks || []) as any[]
+  const upcomingMeetingsList = (upcomingMeetings || []) as any[]
   const statsTasksList = (statsTasks || []) as any[]
   const totalTasks = statsTasksList.length
   const completedTasks = statsTasksList.filter((t: any) => t.status === 'done').length

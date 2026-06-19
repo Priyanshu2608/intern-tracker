@@ -88,7 +88,7 @@ export default async function PerformancePage() {
   const isLead = profile.role === 'lead'
   const isAdmin = profile.role === 'admin'
 
-  // 3. Fetch all active profiles (Leads see their squad, Admin/Intern see all or squad. Scoped appropriately.)
+  // 3. Construct queries
   let profilesQuery = supabase
     .from('profiles')
     .select('id, name, role, team_id, teams(name)')
@@ -97,7 +97,40 @@ export default async function PerformancePage() {
   if (!isAdmin && myTeamId) {
     profilesQuery = profilesQuery.eq('team_id', myTeamId)
   }
-  const { data: dbProfiles } = await profilesQuery.order('name', { ascending: true })
+
+  // 4. Construct tasks query
+  let tasksQuery = supabase
+    .from('tasks')
+    .select('id, title, status, due_date, assignee_id, updated_at, team_id, priority')
+
+  if (!isAdmin && myTeamId) {
+    tasksQuery = tasksQuery.eq('team_id', myTeamId)
+  }
+
+  // 5. Construct standups query
+  let standupsQuery = supabase
+    .from('standups')
+    .select('id, user_id, date')
+
+  // 6. Construct history query
+  let historyQuery = supabase
+    .from('task_activity')
+    .select('*, tasks(title, team_id), profiles(name, role)')
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  // Fetch concurrently using Promise.all to prevent sequential blocking waterfalls
+  const [
+    { data: dbProfiles },
+    { data: tasks },
+    { data: standups },
+    { data: contributions }
+  ] = await Promise.all([
+    profilesQuery.order('name', { ascending: true }),
+    tasksQuery,
+    standupsQuery,
+    historyQuery
+  ])
   
   const profiles = dbProfiles?.map((p: any) => {
     const teamObj = Array.isArray(p.teams) ? p.teams[0] : p.teams
@@ -108,35 +141,8 @@ export default async function PerformancePage() {
   }) || []
   
   const interns = profiles.filter((p: any) => p.role === 'intern')
-
-  // 4. Fetch all tasks (scoped to team or all)
-  let tasksQuery = supabase
-    .from('tasks')
-    .select('id, title, status, due_date, assignee_id, updated_at, team_id, priority')
-
-  if (!isAdmin && myTeamId) {
-    tasksQuery = tasksQuery.eq('team_id', myTeamId)
-  }
-
-  const { data: tasks } = await tasksQuery
   const tasksList = (tasks || []) as any[]
-
-  // 5. Fetch standups (scoped to team or all)
-  let standupsQuery = supabase
-    .from('standups')
-    .select('id, user_id, date')
-
-  const { data: standups } = await standupsQuery
   const standupsList = (standups || []) as any[]
-
-  // 6. Fetch Contribution Feed (Recent 10 completed or updated tasks)
-  let historyQuery = supabase
-    .from('task_activity')
-    .select('*, tasks(title, team_id), profiles(name, role)')
-    .order('created_at', { ascending: false })
-    .limit(10)
-
-  const { data: contributions } = await historyQuery
 
   // Filter contributions: Admin sees all; Lead and Intern see only their own
   const filteredContributions = contributions?.filter((c: any) => {

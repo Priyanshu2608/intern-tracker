@@ -45,17 +45,6 @@ export default async function MeetingsPage() {
     }
   }
 
-  const { data: meetings, error: meetingsError } = await meetingsQuery.order('start_time', { ascending: false })
-
-  if (meetingsError) {
-    console.error('Error fetching meetings:', meetingsError)
-  }
-
-  // 4. Fetch Attendance records for these meetings
-  const { data: attendance } = await supabase
-    .from('meeting_attendance')
-    .select('*, profiles(name, role, team_id)')
-
   // 5. Fetch team members (who are eligible to attend)
   // Leads track their team members. Admins track all. Interns see their own team.
   let membersQuery = supabase
@@ -67,7 +56,22 @@ export default async function MeetingsPage() {
     membersQuery = membersQuery.eq('team_id', myTeamId)
   }
 
-  const { data: activeMembers } = await membersQuery.order('name', { ascending: true })
+  // Run all queries concurrently to resolve waterfalls in production
+  const [
+    { data: meetings, error: meetingsError },
+    { data: attendance },
+    { data: activeMembers },
+    { data: teams }
+  ] = await Promise.all([
+    meetingsQuery.order('start_time', { ascending: false }),
+    supabase.from('meeting_attendance').select('*, profiles(name, role, team_id)'),
+    membersQuery.order('name', { ascending: true }),
+    supabase.from('teams').select('*').order('name', { ascending: true })
+  ])
+
+  if (meetingsError) {
+    console.error('Error fetching meetings:', meetingsError)
+  }
 
   // Format activeMembers to prevent any PostgREST array type mismatch on the teams relation
   const formattedMembers = activeMembers?.map((member: any) => {
@@ -80,12 +84,6 @@ export default async function MeetingsPage() {
       teams: teamObj ? { name: teamObj.name } : null
     }
   }) || []
-
-  // 6. Fetch Teams for scheduler
-  const { data: teams } = await supabase
-    .from('teams')
-    .select('*')
-    .order('name', { ascending: true })
 
   return (
     <div className="space-y-6">

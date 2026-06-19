@@ -94,6 +94,17 @@ export function MeetingsClient({
   teams,
 }: MeetingsClientProps) {
   const [state, formAction, isPendingForm] = useActionState(scheduleMeeting, null)
+
+  // Filter members list based on role:
+  // - Interns should only see their own attendance record.
+  // - Leads and Admins should not see their own name in the marking list.
+  const displayMembers = members.filter((member) => {
+    if (currentUser.role === 'intern') {
+      return member.id === currentUser.id
+    }
+    // Leads and Admins only mark attendance for interns
+    return member.role === 'intern'
+  })
   const [isPendingAttendance, startAttendanceTransition] = useTransition()
 
   // Selection states
@@ -164,6 +175,23 @@ export function MeetingsClient({
           ((presentCount + excusedCount) / internMeetings.length) * 100
         )
       : 100
+
+  // Selected meeting attendance summary stats
+  const presentCountForMeet = selectedMeeting
+    ? displayMembers.filter((m) => getAttendanceStatus(selectedMeeting.id, m.id) === 'present').length
+    : 0
+  const excusedCountForMeet = selectedMeeting
+    ? displayMembers.filter((m) => getAttendanceStatus(selectedMeeting.id, m.id) === 'excused').length
+    : 0
+  const absentCountForMeet = selectedMeeting
+    ? displayMembers.filter((m) => getAttendanceStatus(selectedMeeting.id, m.id) === 'absent').length
+    : 0
+  const unmarkedCountForMeet = selectedMeeting
+    ? displayMembers.length - (presentCountForMeet + excusedCountForMeet + absentCountForMeet)
+    : 0
+  const totalStrength = displayMembers.length
+  const markedCount = totalStrength - unmarkedCountForMeet
+  const markedPercentage = totalStrength > 0 ? Math.round((markedCount / totalStrength) * 100) : 0
 
   return (
     <div className="space-y-6">
@@ -364,9 +392,46 @@ export function MeetingsClient({
                 </div>
               </CardHeader>
 
+              {/* Attendance Tracking Summary Banner for Leads/Admins */}
+              {isManager && (
+                <div className="bg-slate-50/60 border-b border-slate-100 p-4 space-y-3">
+                  <div className="flex items-center justify-between text-[11px] select-none">
+                    <span className="font-extrabold text-slate-400 uppercase tracking-wider">Attendance Marking Progress</span>
+                    <span className="font-extrabold text-[#0B1F3A] uppercase tracking-wider">{markedCount} of {totalStrength} Interns Marked ({markedPercentage}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-200/70 h-2 rounded-full overflow-hidden shadow-inner">
+                    <div 
+                      className={cn(
+                        "h-full transition-all duration-500 rounded-full",
+                        markedPercentage === 100 ? "bg-green-500" : "bg-[#C9952A]"
+                      )}
+                      style={{ width: `${markedPercentage}%` }}
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-center pt-0.5 select-none">
+                    <div className="bg-white border border-slate-200/50 rounded-lg p-2 shadow-sm">
+                      <span className="text-sm font-bold text-green-600 block">{presentCountForMeet}</span>
+                      <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block mt-0.5">Present</span>
+                    </div>
+                    <div className="bg-white border border-slate-200/50 rounded-lg p-2 shadow-sm">
+                      <span className="text-sm font-bold text-amber-600 block">{excusedCountForMeet}</span>
+                      <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block mt-0.5">Excused</span>
+                    </div>
+                    <div className="bg-white border border-slate-200/50 rounded-lg p-2 shadow-sm">
+                      <span className="text-sm font-bold text-red-500 block">{absentCountForMeet}</span>
+                      <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block mt-0.5">Absent</span>
+                    </div>
+                    <div className="bg-white border border-slate-200/50 rounded-lg p-2 shadow-sm">
+                      <span className="text-sm font-bold text-slate-500 block">{unmarkedCountForMeet}</span>
+                      <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider block mt-0.5">Unmarked</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-100 max-h-[calc(100vh-22rem)] overflow-y-auto">
-                  {members.map((member) => {
+                  {displayMembers.map((member) => {
                     const status = getAttendanceStatus(selectedMeeting.id, member.id)
 
                     return (
@@ -375,7 +440,13 @@ export function MeetingsClient({
                         className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-7 w-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-[10px] text-slate-500 uppercase shrink-0">
+                          <div className={cn(
+                            "h-8 w-8 rounded-full flex items-center justify-center font-bold text-[10px] uppercase shrink-0 border transition-all duration-300",
+                            status === 'present' && "bg-green-50 border-green-200 text-green-700 shadow-inner",
+                            status === 'excused' && "bg-amber-50 border-amber-200 text-amber-700 shadow-inner",
+                            status === 'absent' && "bg-red-50 border-red-200 text-red-700 shadow-inner",
+                            !status && "bg-slate-50 border-slate-200 text-slate-500"
+                          )}>
                             {member.name.substring(0, 2)}
                           </div>
                           <div className="flex flex-col min-w-0">
@@ -388,22 +459,21 @@ export function MeetingsClient({
 
                         {/* Interactive triggers for managers, badge for interns */}
                         {isManager ? (
-                          <div className="flex items-center gap-1 select-none">
+                          <div className="flex items-center border border-slate-200/60 rounded-lg overflow-hidden p-0.5 bg-slate-50/50 select-none shadow-sm">
                             <Button
                               size="sm"
                               variant="ghost"
                               disabled={isPendingAttendance}
                               onClick={() => handleMarkAttendance(member.id, 'present')}
                               className={cn(
-                                "h-8 px-2 sm:px-2.5 text-[10px] font-bold uppercase rounded cursor-pointer flex items-center justify-center gap-1 min-w-[32px]",
+                                "h-7 px-3 text-[9px] font-extrabold uppercase rounded-md transition-all cursor-pointer",
                                 status === 'present'
-                                  ? "bg-green-100 text-green-800 hover:bg-green-150"
-                                  : "text-slate-400 hover:bg-slate-50"
+                                  ? "bg-green-600 text-white shadow-sm"
+                                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                               )}
                               title="Present"
                             >
-                              <span className="hidden sm:inline">Present</span>
-                              <UserCheck className="h-4 w-4 sm:hidden" />
+                              Present
                             </Button>
                             <Button
                               size="sm"
@@ -411,15 +481,14 @@ export function MeetingsClient({
                               disabled={isPendingAttendance}
                               onClick={() => handleMarkAttendance(member.id, 'excused')}
                               className={cn(
-                                "h-8 px-2 sm:px-2.5 text-[10px] font-bold uppercase rounded cursor-pointer flex items-center justify-center gap-1 min-w-[32px]",
+                                "h-7 px-3 text-[9px] font-extrabold uppercase rounded-md transition-all cursor-pointer",
                                 status === 'excused'
-                                  ? "bg-amber-100 text-amber-800 hover:bg-amber-150"
-                                  : "text-slate-400 hover:bg-slate-50"
+                                  ? "bg-amber-500 text-white shadow-sm"
+                                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                               )}
                               title="Excused"
                             >
-                              <span className="hidden sm:inline">Excused</span>
-                              <Clock className="h-4 w-4 sm:hidden" />
+                              Excused
                             </Button>
                             <Button
                               size="sm"
@@ -427,15 +496,14 @@ export function MeetingsClient({
                               disabled={isPendingAttendance}
                               onClick={() => handleMarkAttendance(member.id, 'absent')}
                               className={cn(
-                                "h-8 px-2 sm:px-2.5 text-[10px] font-bold uppercase rounded cursor-pointer flex items-center justify-center gap-1 min-w-[32px]",
+                                "h-7 px-3 text-[9px] font-extrabold uppercase rounded-md transition-all cursor-pointer",
                                 status === 'absent'
-                                  ? "bg-red-100 text-red-800 hover:bg-red-150"
-                                  : "text-slate-400 hover:bg-slate-50"
+                                  ? "bg-red-500 text-white shadow-sm"
+                                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                               )}
                               title="Absent"
                             >
-                              <span className="hidden sm:inline">Absent</span>
-                              <XCircle className="h-4 w-4 sm:hidden" />
+                              Absent
                             </Button>
                           </div>
                         ) : (

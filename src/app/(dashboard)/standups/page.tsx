@@ -43,24 +43,25 @@ export default async function StandupsPage() {
     membersQuery = membersQuery.eq('team_id', myTeamId)
   }
 
-  const { data: teamMembers } = await membersQuery.order('name', { ascending: true })
-
-  // 4. Fetch all standup entries for today
   let standupsQuery = supabase
     .from('standups')
     .select('*')
     .eq('date', todayStr)
 
-  const { data: todayStandups, error: standupsError } = await standupsQuery
+  // Run queries concurrently to resolve waterfalls in production
+  const [
+    { data: teamMembers },
+    { data: todayStandups, error: standupsError },
+    { data: allProfiles }
+  ] = await Promise.all([
+    membersQuery.order('name', { ascending: true }),
+    standupsQuery,
+    supabase.from('profiles').select('*, teams(name)')
+  ])
 
   if (standupsError) {
     console.error('Error fetching today\'s standups:', standupsError)
   }
-
-  // 5. Fetch all profiles with squad names for robust in-memory stitching
-  const { data: allProfiles } = await supabase
-    .from('profiles')
-    .select('*, teams(name)')
 
   // Stitch profiles onto standups
   const stitchedStandups = (todayStandups || []).map((standup: any) => {

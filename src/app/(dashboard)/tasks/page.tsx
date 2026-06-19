@@ -49,14 +49,6 @@ export default async function TasksPage() {
       tasksQuery = tasksQuery.eq('assignee_id', user.id)
     }
   }
-  // Admins see all tasks
-
-  const { data: tasks, error: tasksError } = await tasksQuery.order('created_at', { ascending: false })
-
-  if (tasksError) {
-    console.error('Error fetching tasks:', tasksError)
-  }
-
   // 4. Fetch list of eligible assignees (active users)
   // Admin is never assignable (they are managers/observers only).
   // Leads can only assign to interns in their own team.
@@ -72,13 +64,20 @@ export default async function TasksPage() {
     assigneesQuery = assigneesQuery.eq('team_id', myTeamId).eq('role', 'intern')
   }
 
-  const { data: assignees } = await assigneesQuery.order('name', { ascending: true })
+  // Run all queries concurrently to resolve waterfalls in production
+  const [
+    { data: tasks, error: tasksError },
+    { data: assignees },
+    { data: teams }
+  ] = await Promise.all([
+    tasksQuery.order('created_at', { ascending: false }),
+    assigneesQuery.order('name', { ascending: true }),
+    supabase.from('teams').select('*').order('name', { ascending: true })
+  ])
 
-  // 5. Fetch all teams (for admins or squad references)
-  const { data: teams } = await supabase
-    .from('teams')
-    .select('*')
-    .order('name', { ascending: true })
+  if (tasksError) {
+    console.error('Error fetching tasks:', tasksError)
+  }
 
   return (
     <div className="space-y-6 flex flex-col h-[calc(100vh-8rem)]">
