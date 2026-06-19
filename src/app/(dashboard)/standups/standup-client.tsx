@@ -92,9 +92,15 @@ export function StandupClient({
   // Separate members who posted vs pending
   const postedUserIds = new Set(filteredStandups.map((s) => s.user_id))
   
-  const pendingMembers = filteredMembers.filter(
-    (member) => !postedUserIds.has(member.id)
-  )
+  const pendingMembers = filteredMembers
+    .filter((member) => !postedUserIds.has(member.id))
+    .filter((member) => {
+      // If the member is a lead or admin, only show them if they are the current logged-in user
+      if (member.role === 'lead' || member.role === 'admin') {
+        return member.id === currentUser.id
+      }
+      return true
+    })
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">

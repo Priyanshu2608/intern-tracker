@@ -35,15 +35,11 @@ export default async function TasksPage() {
   // 3. Fetch Tasks (role-scoped)
   let tasksQuery = supabase
     .from('tasks')
-    .select('*, assignee:profiles!tasks_assignee_id_fkey(id, name, email)')
+    .select('*, assignee:profiles!tasks_assignee_id_fkey(id, name, email, role)')
 
   if (isIntern) {
-    // Interns see tasks assigned to them OR tasks in their squad
-    if (myTeamId) {
-      tasksQuery = tasksQuery.or(`assignee_id.eq.${user.id},team_id.eq.${myTeamId}`)
-    } else {
-      tasksQuery = tasksQuery.eq('assignee_id', user.id)
-    }
+    // Interns only see tasks allotted to them
+    tasksQuery = tasksQuery.eq('assignee_id', user.id)
   } else if (isLead) {
     // Leads manage tasks for their own squad
     if (myTeamId) {

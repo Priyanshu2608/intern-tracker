@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Scale, Lock, Mail, Loader2 } from 'lucide-react'
+import { Lock, Mail, Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(login, null)
@@ -20,8 +20,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md z-10">
         {/* Brand Header */}
         <div className="flex flex-col items-center mb-8 text-center">
-          <div className="h-12 w-12 rounded-xl bg-[#0B1F3A] flex items-center justify-center text-[#C9952A] shadow-lg mb-3 border border-[#C9952A]/20 transition-transform duration-300 hover:rotate-6">
-            <Scale className="h-6 w-6" />
+          <div className="h-12 w-12 rounded-xl bg-white flex items-center justify-center shadow-lg mb-3 border border-[#C9952A]/20 transition-transform duration-300 hover:rotate-6 p-1.5 shrink-0">
+            <img src="/logo.png" alt="Turn2Law Logo" className="h-full w-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-[#0B1F3A] tracking-tight">Turn2Law</h1>
           <p className="text-sm text-slate-500 font-medium">Intern Tracker & Performance Suite</p>

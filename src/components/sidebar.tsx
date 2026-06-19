@@ -12,8 +12,7 @@ import {
   FileText,
   TrendingUp,
   Settings,
-  LogOut,
-  Scale
+  LogOut
 } from 'lucide-react'
 import { Button } from './ui/button'
 
@@ -81,11 +80,11 @@ export function Sidebar({ user, className }: SidebarProps) {
     <aside className={cn("w-64 bg-[#0B1F3A] text-white flex flex-col h-screen border-r border-[#C9952A]/10 select-none", className)}>
       {/* Brand Section */}
       <div className="p-6 border-b border-slate-700/40 flex items-center gap-3">
-        <div className="h-9 w-9 rounded-lg bg-[#C9952A]/15 border border-[#C9952A]/30 flex items-center justify-center text-[#C9952A]">
-          <Scale className="h-5 w-5" />
+        <div className="h-9 w-9 rounded-lg bg-white overflow-hidden flex items-center justify-center border border-[#C9952A]/30 p-1 shrink-0 shadow-inner">
+          <img src="/logo.png" alt="Turn2Law Logo" className="h-full w-full object-contain" />
         </div>
         <div className="flex flex-col">
-          <span className="font-bold text-lg leading-tight tracking-wide">Turn2Law</span>
+          <span className="font-bold text-lg leading-tight tracking-wide text-white">Turn2Law</span>
           <span className="text-xs text-slate-400 font-medium">Intern Tracker</span>
         </div>
       </div>

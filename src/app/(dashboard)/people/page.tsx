@@ -27,11 +27,12 @@ export default async function PeoplePage() {
     redirect('/login')
   }
 
-  const isAdmin = currentProfile.role === 'admin'
-  const myTeamId = currentProfile.team_id
-  const myTeamName = Array.isArray(currentProfile.teams)
-    ? currentProfile.teams[0]?.name
-    : currentProfile.teams?.name
+  const profileAny = currentProfile as any
+  const isAdmin = profileAny.role === 'admin'
+  const myTeamId = profileAny.team_id
+  const myTeamName = Array.isArray(profileAny.teams)
+    ? profileAny.teams[0]?.name
+    : profileAny.teams?.name
 
   // 3. Fetch profiles — admins see everyone; leads/interns see only their squad
   let profilesQuery = supabase

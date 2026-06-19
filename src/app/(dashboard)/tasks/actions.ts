@@ -121,6 +121,11 @@ export async function updateTaskStatus(taskId: string, newStatus: string, curren
     throw new Error('Unauthorized to update this task status')
   }
 
+  // Prevent interns from transitioning tasks to 'done' directly
+  if (profile.role === 'intern' && newStatus === 'done') {
+    throw new Error("Tasks cannot be marked as 'Done' directly by interns. Status 'Done' requires approval from a Lead or Admin.")
+  }
+
   // Update status
   const { error: updateError } = await supabase
     .from('tasks')
@@ -154,7 +159,11 @@ export async function updateTaskStatus(taskId: string, newStatus: string, curren
       change_type: 'status_change',
       from_value: currentStatus,
       to_value: newStatus,
-      comment: `Moved task from "${fromLabel}" to "${toLabel}"`
+      comment: currentStatus === 'review' && newStatus === 'done'
+        ? 'Approved task (Moved to Done)'
+        : currentStatus === 'review' && newStatus === 'in_progress'
+        ? 'Rejected task (Needs Changes)'
+        : `Moved task from "${fromLabel}" to "${toLabel}"`
     })
 
   if (historyError) {

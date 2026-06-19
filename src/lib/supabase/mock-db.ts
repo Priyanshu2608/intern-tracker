@@ -353,7 +353,7 @@ export function resolveRelations(table: string, item: any, db: MockDatabase): an
   if (table === 'tasks') {
     if (item.assignee_id) {
       const profile = db.profiles.find((p) => p.id === item.assignee_id)
-      resolved.assignee = profile ? { id: profile.id, name: profile.name, email: profile.email } : null
+      resolved.assignee = profile ? { id: profile.id, name: profile.name, email: profile.email, role: profile.role } : null
     } else {
       resolved.assignee = null
     }
@@ -362,6 +362,32 @@ export function resolveRelations(table: string, item: any, db: MockDatabase): an
   if (table === 'task_activity') {
     const profile = db.profiles.find((p) => p.id === item.changed_by)
     resolved.profiles = profile ? { name: profile.name, role: profile.role } : null
+    if (item.task_id) {
+      const task = db.tasks.find((t) => t.id === item.task_id)
+      resolved.tasks = task ? { title: task.title, team_id: task.team_id } : null
+    } else {
+      resolved.tasks = null
+    }
+  }
+
+  if (table === 'standups') {
+    const profile = db.profiles.find((p) => p.id === item.user_id)
+    if (profile) {
+      let teamName = null
+      if (profile.team_id) {
+        const team = db.teams.find((t) => t.id === profile.team_id)
+        teamName = team ? { name: team.name } : null
+      }
+      resolved.profiles = {
+        id: profile.id,
+        name: profile.name,
+        role: profile.role,
+        team_id: profile.team_id,
+        teams: teamName
+      }
+    } else {
+      resolved.profiles = null
+    }
   }
 
   return resolved

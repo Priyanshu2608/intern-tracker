@@ -45,10 +45,10 @@ export default async function StandupsPage() {
 
   const { data: teamMembers } = await membersQuery.order('name', { ascending: true })
 
-  // 4. Fetch all standup entries for today (scoped to squad or all)
+  // 4. Fetch all standup entries for today
   let standupsQuery = supabase
     .from('standups')
-    .select('*, profiles(id, name, role, team_id, teams(name))')
+    .select('*')
     .eq('date', todayStr)
 
   const { data: todayStandups, error: standupsError } = await standupsQuery
@@ -57,8 +57,28 @@ export default async function StandupsPage() {
     console.error('Error fetching today\'s standups:', standupsError)
   }
 
+  // 5. Fetch all profiles with squad names for robust in-memory stitching
+  const { data: allProfiles } = await supabase
+    .from('profiles')
+    .select('*, teams(name)')
+
+  // Stitch profiles onto standups
+  const stitchedStandups = (todayStandups || []).map((standup: any) => {
+    const p = allProfiles?.find((prof: any) => prof.id === standup.user_id) || null
+    return {
+      ...standup,
+      profiles: p
+    }
+  })
+
+  // Filter standups to squad members only if current user is not admin
+  let displayStandups = stitchedStandups
+  if (!isAdmin && myTeamId) {
+    displayStandups = stitchedStandups.filter((s: any) => s.profiles?.team_id === myTeamId)
+  }
+
   // Find if current user submitted today's standup
-  const mySubmission = todayStandups?.find((s: any) => s.user_id === user.id) || null
+  const mySubmission = displayStandups.find((s: any) => s.user_id === user.id) || null
 
   return (
     <div className="space-y-6">
@@ -72,7 +92,7 @@ export default async function StandupsPage() {
       <StandupClient
         currentUser={profile}
         mySubmission={mySubmission}
-        todayStandups={todayStandups || []}
+        todayStandups={displayStandups}
         teamMembers={teamMembers || []}
       />
     </div>

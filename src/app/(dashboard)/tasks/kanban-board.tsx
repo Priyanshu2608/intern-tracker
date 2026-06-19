@@ -10,13 +10,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -76,6 +69,7 @@ interface Task {
     id: string
     name: string
     email: string
+    role: string
   } | null
 }
 
@@ -113,14 +107,23 @@ function formatAssigneeLabel(person: ProfileSummary) {
   return `${person.name} — ${formatAssigneeRole(person.role)}`
 }
 
-function buildAssigneeItems(assignees: ProfileSummary[]) {
-  return [
+function buildAssigneeItems(assignees: ProfileSummary[], taskAssignee?: Task['assignee']) {
+  const items = [
     { value: '', label: 'Unassigned' },
     ...assignees.map((person) => ({
       value: person.id,
       label: formatAssigneeLabel(person),
     })),
   ]
+
+  if (taskAssignee && !assignees.some((a) => a.id === taskAssignee.id)) {
+    items.push({
+      value: taskAssignee.id,
+      label: `${taskAssignee.name} — Assignee`,
+    })
+  }
+
+  return items
 }
 
 function buildFilterAssigneeItems(assignees: ProfileSummary[]) {
@@ -222,6 +225,12 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
 
     if (!taskId || currentStatus === newStatus) return
 
+    // Block interns from marking tasks as done directly
+    if (currentUser.role === 'intern' && newStatus === 'done') {
+      alert("Tasks cannot be marked as 'Done' directly by interns. Status 'Done' requires approval from a Lead or Admin.")
+      return
+    }
+
     // Optimistic state update
     const previousTasks = [...tasks]
     setTasks((prev) =>
@@ -242,6 +251,13 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
   // Handle manual dropdown status change
   const handleStatusChange = async (taskId: string, newStatus: Task['status'], currentStatus: Task['status']) => {
     if (newStatus === currentStatus) return
+
+    // Block interns from marking tasks as done directly
+    if (currentUser.role === 'intern' && newStatus === 'done') {
+      alert("Tasks cannot be marked as 'Done' directly by interns. Status 'Done' requires approval from a Lead or Admin.")
+      return
+    }
+
     startTransition(async () => {
       try {
         await updateTaskStatus(taskId, newStatus, currentStatus)
@@ -253,6 +269,34 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
         }
       } catch (err: any) {
         alert(err.message || 'Failed to update status.')
+      }
+    })
+  }
+
+  const handleApprove = async (e: React.MouseEvent, task: Task) => {
+    e.stopPropagation()
+    startTransition(async () => {
+      try {
+        await updateTaskStatus(task.id, 'done', 'review')
+        setTasks((prev) =>
+          prev.map((t) => (t.id === task.id ? { ...t, status: 'done' } : t))
+        )
+      } catch (err: any) {
+        alert(err.message || 'Failed to approve task.')
+      }
+    })
+  }
+
+  const handleReject = async (e: React.MouseEvent, task: Task) => {
+    e.stopPropagation()
+    startTransition(async () => {
+      try {
+        await updateTaskStatus(task.id, 'in_progress', 'review')
+        setTasks((prev) =>
+          prev.map((t) => (t.id === task.id ? { ...t, status: 'in_progress' } : t))
+        )
+      } catch (err: any) {
+        alert(err.message || 'Failed to reject task.')
       }
     })
   }
@@ -274,6 +318,7 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
   // Submit Task Creation Form
   const handleCreateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (isSubmitting) return
     setIsSubmitting(true)
     setErrorMsg('')
 
@@ -293,6 +338,7 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
   // Submit Task Update Form (Drawer)
   const handleUpdateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (isSubmitting) return
     setIsSubmitting(true)
     setErrorMsg('')
 
@@ -371,6 +417,8 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                 task.status !== 'done' &&
                 new Date(task.due_date + 'T23:59:59') < new Date()
 
+              const isLeadTask = task.assignee?.role === 'lead'
+
               return (
                 <div
                   key={task.id}
@@ -380,28 +428,60 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                   className={cn(
                     "bg-white p-3.5 rounded-lg border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all active:cursor-grabbing group relative select-none cursor-pointer",
                     !isMobile && "cursor-grab",
-                    task.status === 'blocked' && "border-l-4 border-l-red-500",
-                    task.status === 'in_progress' && "border-l-4 border-l-amber-500",
-                    task.status === 'done' && "border-l-4 border-l-green-500"
+                    isLeadTask && "bg-amber-50/15 border-[#C9952A]/40 border-l-4 border-l-[#C9952A] shadow-[inset_0_1px_3px_rgba(201,149,42,0.05)]",
+                    !isLeadTask && task.status === 'blocked' && "border-l-4 border-l-red-500",
+                    !isLeadTask && task.status === 'in_progress' && "border-l-4 border-l-amber-500",
+                    !isLeadTask && task.status === 'done' && "border-l-4 border-l-green-500"
                   )}
                 >
-                  <h4 className="font-bold text-xs sm:text-sm text-[#0B1F3A] leading-snug group-hover:text-[#C9952A] transition-colors line-clamp-2 pr-1 mb-2">
-                    {task.title}
-                  </h4>
+                  <div className="flex justify-between items-start gap-2 mb-2">
+                    <h4 className="font-bold text-xs sm:text-sm text-[#0B1F3A] leading-snug group-hover:text-[#C9952A] transition-colors line-clamp-2 pr-1">
+                      {task.title}
+                    </h4>
+
+                    {isManager && task.status === 'review' && (
+                      <div className="flex items-center gap-1 shrink-0 select-none">
+                        <button
+                          type="button"
+                          onClick={(e) => handleApprove(e, task)}
+                          className="h-6 w-6 rounded-md bg-green-50 border border-green-200 text-green-600 hover:bg-green-100 hover:text-green-700 flex items-center justify-center transition-colors cursor-pointer shadow-sm"
+                          title="Approve (Mark Done)"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleReject(e, task)}
+                          className="h-6 w-6 rounded-md bg-red-50 border border-red-200 text-red-650 hover:bg-red-100 hover:text-red-700 flex items-center justify-center transition-colors cursor-pointer shadow-sm"
+                          title="Needs Changes (Move to In Progress)"
+                        >
+                          <span className="text-[10px] font-extrabold leading-none">✕</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-100">
-                    {/* Priority */}
-                    <Badge
-                      className={cn(
-                        "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0",
-                        task.priority === 'urgent' && "bg-red-100 text-red-800 border-none",
-                        task.priority === 'high' && "bg-amber-100 text-amber-800 border-none",
-                        task.priority === 'medium' && "bg-blue-100 text-blue-800 border-none",
-                        task.priority === 'low' && "bg-slate-100 text-slate-800 border-none"
+                    {/* Priority & Lead Badge */}
+                    <div className="flex items-center gap-1.5">
+                      <Badge
+                        className={cn(
+                          "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0",
+                          task.priority === 'urgent' && "bg-red-100 text-red-800 border-none",
+                          task.priority === 'high' && "bg-amber-100 text-amber-800 border-none",
+                          task.priority === 'medium' && "bg-blue-100 text-blue-800 border-none",
+                          task.priority === 'low' && "bg-slate-100 text-slate-800 border-none"
+                        )}
+                      >
+                        {task.priority}
+                      </Badge>
+
+                      {isLeadTask && (
+                        <Badge className="bg-[#C9952A]/10 text-[#C9952A] hover:bg-[#C9952A]/20 border border-[#C9952A]/25 text-[8px] font-extrabold uppercase tracking-wider flex items-center gap-0.5 px-1.5 py-0">
+                          👑 Lead
+                        </Badge>
                       )}
-                    >
-                      {task.priority}
-                    </Badge>
+                    </div>
 
                     {/* Info */}
                     <div className="flex items-center gap-2">
@@ -705,17 +785,17 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
         </DialogContent>
       </Dialog>
 
-      {/* ==================== DETAIL DRAWER (SHEET) ==================== */}
-      <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <SheetContent className="sm:max-w-[550px] overflow-y-auto">
+      {/* ==================== DETAIL DIALOG (MODAL) ==================== */}
+      <Dialog open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto p-6">
           {selectedTask && (
             <div className="space-y-6">
-              <SheetHeader className="pb-4 border-b border-slate-100 flex flex-row items-center justify-between pr-6">
+              <DialogHeader className="pb-4 border-b border-slate-100 flex flex-row items-center justify-between pr-6">
                 <div>
-                  <SheetTitle className="text-lg font-bold text-[#0B1F3A] leading-tight">Task Details</SheetTitle>
-                  <SheetDescription className="text-xs text-slate-400">
+                  <DialogTitle className="text-lg font-bold text-[#0B1F3A] leading-tight">Task Details</DialogTitle>
+                  <DialogDescription className="text-xs text-slate-400">
                     View settings and transition logs.
-                  </SheetDescription>
+                  </DialogDescription>
                 </div>
 
                 {currentUser.role === 'admin' && (
@@ -728,11 +808,46 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 )}
-              </SheetHeader>
+              </DialogHeader>
 
               {/* Roles check: Managers can Edit, Interns can view + update status */}
               {isManager ? (
                 <form onSubmit={handleUpdateSubmit} className="space-y-4">
+                  {selectedTask.status === 'review' && (
+                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 select-none mb-4 shadow-sm animate-fade-in">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="h-5 w-5 text-blue-500 shrink-0" />
+                        <div className="flex flex-col">
+                          <span className="font-bold text-xs text-[#0B1F3A]">Task Awaiting Approval</span>
+                          <span className="text-[10px] text-slate-500">Review deliverables before changing status.</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+                        <Button
+                          type="button"
+                          onClick={(e) => {
+                            handleApprove(e, selectedTask)
+                            setIsDrawerOpen(false)
+                          }}
+                          className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs h-9 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-sm w-full sm:w-auto"
+                        >
+                          <Check className="h-3.5 w-3.5" /> Approve Done
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={(e) => {
+                            handleReject(e, selectedTask)
+                            setIsDrawerOpen(false)
+                          }}
+                          variant="outline"
+                          className="border-red-200 bg-red-50 text-red-650 hover:bg-red-100 hover:text-red-700 font-bold text-xs h-9 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer shadow-sm w-full sm:w-auto"
+                        >
+                          <span>✕</span> Needs Changes
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
                   {errorMsg && (
                     <div className="p-3 text-xs bg-red-50 border border-red-200 text-red-600 rounded-lg font-medium">
                       {errorMsg}
@@ -820,16 +935,16 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                       <Select
                         name="assigneeId"
                         defaultValue={selectedTask.assignee_id || ""}
-                        items={buildAssigneeItems(assignees)}
+                        items={buildAssigneeItems(assignees, selectedTask.assignee)}
                       >
                         <SelectTrigger className="w-full min-w-0 h-11 border-slate-200 text-sm">
                           <SelectValue placeholder="Unassigned" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="">Unassigned</SelectItem>
-                          {assignees.map((person) => (
-                            <SelectItem key={person.id} value={person.id}>
-                              {formatAssigneeLabel(person)}
+                          {buildAssigneeItems(assignees, selectedTask.assignee).slice(1).map((person) => (
+                            <SelectItem key={person.value} value={person.value}>
+                              {person.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -914,7 +1029,7 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
                         <SelectItem value="todo">To Do</SelectItem>
                         <SelectItem value="in_progress">In Progress</SelectItem>
                         <SelectItem value="review">Review</SelectItem>
-                        <SelectItem value="done">Done</SelectItem>
+                        {currentUser.role !== 'intern' && <SelectItem value="done">Done</SelectItem>}
                         <SelectItem value="blocked">Blocked</SelectItem>
                       </SelectContent>
                     </Select>
@@ -984,8 +1099,8 @@ export function KanbanBoard({ initialTasks, assignees, teams, currentUser }: Kan
               </div>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

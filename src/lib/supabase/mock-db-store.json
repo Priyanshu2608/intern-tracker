@@ -124,13 +124,13 @@
       "description": "Address comments from senior developer on git PR.",
       "acceptance_criteria": "All comments resolved and PR approved.",
       "priority": "medium",
-      "status": "todo",
+      "status": "done",
       "due_date": "2026-06-28",
       "assignee_id": "77777777-7777-7777-7777-777777777777",
       "team_id": "11111111-1111-1111-1111-111111111111",
       "created_by": "88888888-8888-8888-8888-888888888888",
       "created_at": "2026-06-18T19:46:03.503Z",
-      "updated_at": "2026-06-18T22:07:24.634Z"
+      "updated_at": "2026-06-19T21:30:59.739Z"
     },
     {
       "id": "33333333-4444-4444-4444-444444444444",
@@ -145,6 +145,34 @@
       "created_by": "99999999-9999-9999-9999-999999999999",
       "created_at": "2026-06-18T19:46:03.503Z",
       "updated_at": "2026-06-18T19:46:03.503Z"
+    },
+    {
+      "id": "673cdbd6-2aa6-41db-98c5-60a41f988c7a",
+      "created_at": "2026-06-19T21:40:43.077Z",
+      "updated_at": "2026-06-19T21:41:58.768Z",
+      "title": "test",
+      "description": "ashja",
+      "acceptance_criteria": "dada",
+      "priority": "high",
+      "status": "done",
+      "due_date": "2026-06-21",
+      "assignee_id": "77777777-7777-7777-7777-777777777777",
+      "team_id": "11111111-1111-1111-1111-111111111111",
+      "created_by": "88888888-8888-8888-8888-888888888888"
+    },
+    {
+      "id": "145677ed-ac0e-4cb0-b54d-767a7b9ec8d8",
+      "created_at": "2026-06-19T21:40:43.078Z",
+      "updated_at": "2026-06-19T21:49:22.094Z",
+      "title": "test",
+      "description": "ashja",
+      "acceptance_criteria": "dada",
+      "priority": "high",
+      "status": "done",
+      "due_date": "2026-06-21",
+      "assignee_id": "77777777-7777-7777-7777-777777777777",
+      "team_id": "11111111-1111-1111-1111-111111111111",
+      "created_by": "88888888-8888-8888-8888-888888888888"
     }
   ],
   "task_activity": [
@@ -200,6 +228,115 @@
       "from_value": "in_progress",
       "to_value": "todo",
       "comment": "Moved task from \"In Progress\" to \"To Do\""
+    },
+    {
+      "id": "c77b4bd4-26a0-4046-a910-b6857481814e",
+      "created_at": "2026-06-19T21:30:57.322Z",
+      "updated_at": "2026-06-19T21:30:57.322Z",
+      "task_id": "44444444-4444-4444-4444-444444444444",
+      "changed_by": "77777777-7777-7777-7777-777777777777",
+      "change_type": "status_change",
+      "from_value": "todo",
+      "to_value": "review",
+      "comment": "Moved task from \"To Do\" to \"Review\""
+    },
+    {
+      "id": "fa01019b-878c-4e38-9f86-15230b61dad8",
+      "created_at": "2026-06-19T21:30:59.740Z",
+      "updated_at": "2026-06-19T21:30:59.740Z",
+      "task_id": "44444444-4444-4444-4444-444444444444",
+      "changed_by": "77777777-7777-7777-7777-777777777777",
+      "change_type": "status_change",
+      "from_value": "review",
+      "to_value": "done",
+      "comment": "Moved task from \"Review\" to \"Done\""
+    },
+    {
+      "id": "b458a9bd-66f7-4025-a5f6-a7925a530357",
+      "created_at": "2026-06-19T21:40:43.078Z",
+      "updated_at": "2026-06-19T21:40:43.078Z",
+      "task_id": "145677ed-ac0e-4cb0-b54d-767a7b9ec8d8",
+      "changed_by": "88888888-8888-8888-8888-888888888888",
+      "change_type": "creation",
+      "to_value": "todo",
+      "comment": "Task created"
+    },
+    {
+      "id": "a1ecbdb5-0c13-46dd-94bd-be0ec59be1c7",
+      "created_at": "2026-06-19T21:41:13.758Z",
+      "updated_at": "2026-06-19T21:41:13.758Z",
+      "task_id": "673cdbd6-2aa6-41db-98c5-60a41f988c7a",
+      "changed_by": "77777777-7777-7777-7777-777777777777",
+      "change_type": "status_change",
+      "from_value": "todo",
+      "to_value": "review",
+      "comment": "Moved task from \"To Do\" to \"Review\""
+    },
+    {
+      "id": "4f431a4a-51ab-4de9-a815-e5c1c17c85ec",
+      "created_at": "2026-06-19T21:41:29.625Z",
+      "updated_at": "2026-06-19T21:41:29.625Z",
+      "task_id": "145677ed-ac0e-4cb0-b54d-767a7b9ec8d8",
+      "changed_by": "77777777-7777-7777-7777-777777777777",
+      "change_type": "status_change",
+      "from_value": "todo",
+      "to_value": "review",
+      "comment": "Moved task from \"To Do\" to \"Review\""
+    },
+    {
+      "id": "7f7d3913-c733-4d30-b991-13005aa76f47",
+      "created_at": "2026-06-19T21:41:57.276Z",
+      "updated_at": "2026-06-19T21:41:57.276Z",
+      "task_id": "673cdbd6-2aa6-41db-98c5-60a41f988c7a",
+      "changed_by": "88888888-8888-8888-8888-888888888888",
+      "change_type": "status_change",
+      "from_value": "review",
+      "to_value": "blocked",
+      "comment": "Moved task from \"Review\" to \"Blocked\""
+    },
+    {
+      "id": "069cab83-5a1b-4b61-8343-c87dee92f85a",
+      "created_at": "2026-06-19T21:41:58.769Z",
+      "updated_at": "2026-06-19T21:41:58.769Z",
+      "task_id": "673cdbd6-2aa6-41db-98c5-60a41f988c7a",
+      "changed_by": "88888888-8888-8888-8888-888888888888",
+      "change_type": "status_change",
+      "from_value": "blocked",
+      "to_value": "done",
+      "comment": "Moved task from \"Blocked\" to \"Done\""
+    },
+    {
+      "id": "5ac55de4-f134-4ea1-bbb6-705ac014accd",
+      "created_at": "2026-06-19T21:42:10.006Z",
+      "updated_at": "2026-06-19T21:42:10.006Z",
+      "task_id": "145677ed-ac0e-4cb0-b54d-767a7b9ec8d8",
+      "changed_by": "88888888-8888-8888-8888-888888888888",
+      "change_type": "status_change",
+      "from_value": "review",
+      "to_value": "done",
+      "comment": "Moved task from \"Review\" to \"Done\""
+    },
+    {
+      "id": "6eb58d80-c465-4e94-827e-2aeb44c9a198",
+      "created_at": "2026-06-19T21:49:03.509Z",
+      "updated_at": "2026-06-19T21:49:03.509Z",
+      "task_id": "145677ed-ac0e-4cb0-b54d-767a7b9ec8d8",
+      "changed_by": "77777777-7777-7777-7777-777777777777",
+      "change_type": "status_change",
+      "from_value": "done",
+      "to_value": "review",
+      "comment": "Moved task from \"Done\" to \"Review\""
+    },
+    {
+      "id": "6a707a43-a841-4081-a88b-e24b2d1381db",
+      "created_at": "2026-06-19T21:49:22.095Z",
+      "updated_at": "2026-06-19T21:49:22.095Z",
+      "task_id": "145677ed-ac0e-4cb0-b54d-767a7b9ec8d8",
+      "changed_by": "88888888-8888-8888-8888-888888888888",
+      "change_type": "status_change",
+      "from_value": "review",
+      "to_value": "done",
+      "comment": "Approved task (Moved to Done)"
     }
   ],
   "standups": [
@@ -211,6 +348,26 @@
       "doing_today": "Implementing the database mock layer.",
       "blockers": "No live Supabase instance available.",
       "created_at": "2026-06-18T19:46:03.518Z"
+    },
+    {
+      "id": "4d53d310-e06d-4704-b449-7b37843fa79f",
+      "created_at": "2026-06-19T21:30:24.218Z",
+      "updated_at": "2026-06-19T21:30:24.218Z",
+      "user_id": "77777777-7777-7777-7777-777777777777",
+      "date": "2026-06-20",
+      "did_yesterday": "fdz",
+      "doing_today": "zcz",
+      "blockers": null
+    },
+    {
+      "id": "af7e036d-97ad-48d1-ad4e-581c893fe24d",
+      "created_at": "2026-06-19T21:59:12.890Z",
+      "updated_at": "2026-06-19T21:59:12.890Z",
+      "user_id": "88888888-8888-8888-8888-888888888888",
+      "date": "2026-06-20",
+      "did_yesterday": "adnjs",
+      "doing_today": "adj",
+      "blockers": "sd"
     }
   ],
   "meetings": [
